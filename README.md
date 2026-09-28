@@ -1,24 +1,22 @@
 # Safety Observation
 
-مشروع Flutter مبدئي. يحتوي حاليًا على ملفات التطبيق والإعداد الأساسية فقط، دون تنفيذ واجهات Figma أو منطق الأعمال.
+Flutter application for Android safety observations. Version one is offline first and has no server synchronization.
 
-## تجهيز المشروع محليًا
+## Current state
 
-ثبّت Flutter SDK، ثم نفّذ من داخل مجلد المشروع:
+The repository contains an app entry point, the Home screen's separate Dart file, shared theme/text, and the report domain model. **The Home layout is still a placeholder**, and data is not yet persisted. Progress is tracked in [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md).
+
+The Figma file has 15 frames. Each will be implemented in a separate screen file under its feature directory. No short-lived Figma asset URLs will be used at runtime.
+
+## Run locally
+
+Install Flutter SDK, clone this repository, then run from its root:
 
 ```bash
-flutter create --project-name safety_observation .
+flutter create --project-name safety_observation --platforms android .
 flutter pub get
+flutter analyze
 flutter run
 ```
 
-الأمر `flutter create` يولّد ملفات المنصات القياسية مثل `android/` و`ios/` بحسب البيئة المتاحة. بعد ذلك يمكن إضافة ملفات المنصات الناتجة إلى المستودع. افحص التغييرات قبل اعتمادها حتى يبقى `lib/main.dart` كما هو.
-
-## الملفات الحالية
-
-- `lib/main.dart`: نقطة تشغيل التطبيق وشاشة بداية مؤقتة.
-- `pubspec.yaml`: تعريف المشروع واعتماده على Flutter.
-- `analysis_options.yaml`: قواعد تحليل Dart الأساسية.
-- `.gitignore`: يستبعد ملفات البناء والإعدادات المحلية.
-
-لا توجد بيانات دخول أو مفاتيح API في المشروع.
+`flutter create` supplies the standard Android platform files, which are not yet committed. Review generated changes before committing them. The current project has no third-party Dart packages.

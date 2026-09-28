@@ -1,26 +1,8 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+
+import 'app/safety_observation_app.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const SafetyObservationApp());
-}
-
-class SafetyObservationApp extends StatelessWidget {
-  const SafetyObservationApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Safety Observation',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      home: const Scaffold(
-        body: Center(
-          child: Text('Safety Observation'),
-        ),
-      ),
-    );
-  }
 }
