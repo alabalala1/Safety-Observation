@@ -20,3 +20,7 @@ flutter run
 ```
 
 `flutter create` supplies the standard Android platform files, which are not yet committed. Review generated changes before committing them. The only third-party package currently declared is `flutter_svg 2.0.17` for the exact local icons exported from Figma. The Dart SDK minimum is 3.4, matching that package's published requirement.
+
+## Android build on GitHub
+
+Every push triggers [Android debug build](.github/workflows/android-build.yml). It installs Flutter 3.47.0, generates the Android platform files on the runner, resolves dependencies, analyzes `lib`, and builds a debug APK. In the repository's **Actions** tab, open the successful run and download **safety-observation-debug-apk** under **Artifacts**. The artifact is kept for 14 days. This APK is for development testing; publishing a release will require a separate signed release build.

@@ -9,6 +9,7 @@
 - Home → Observation Type → Basic Info navigation; report type and Stop Card category selection.
 - A draft gets an offline-generated report ID and timestamp; Basic Info requires a work Area.
 - Typed report model and local repository contract.
+- GitHub Actions Android debug build on every push, with static analysis and a downloadable APK artifact.
 
 ## Next implementation milestones
 
@@ -17,4 +18,4 @@
 3. Choose one compatible local database package, implement autosave, search, and attachment handling.
 4. Add PDF, `.safety` transfer, backup/restore, and device verification.
 
-The first three screens have Figma-based layouts and exact local icons. My Reports, Import, shortcuts, and Basic Info Continue currently show pending until their target workflows exist. The draft is only in memory and is not autosaved yet. No report counts or site name are fabricated. Flutter SDK and Android platform files are not available in the current cloud environment, so `flutter analyze`, dependency resolution, and a device visual build are pending.
+The first three screens have Figma-based layouts and exact local icons. My Reports, Import, shortcuts, and Basic Info Continue currently show pending until their target workflows exist. The draft is only in memory and is not autosaved yet. No report counts or site name are fabricated. The Android build runs in GitHub Actions because the Flutter SDK and Android platform files are not available in this workspace. A device visual check is still pending.
