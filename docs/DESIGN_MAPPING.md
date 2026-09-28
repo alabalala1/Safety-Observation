@@ -4,8 +4,8 @@ Design file: `eNLkUWaaTxCcfWNCEK4X3P`, page `0:1`. Each frame becomes one Dart s
 
 | Figma frame | Screen file | State |
 | --- | --- | --- |
-| `2:4` home-screen | `lib/features/home/presentation/home_screen.dart` | Entry point only; design pending assets |
-| `2:151` observation-type-screen | `lib/features/observations/presentation/observation_type_screen.dart` | Pending |
+| `2:4` home-screen | `lib/features/home/presentation/home_screen.dart` | UI implemented; data actions pending |
+| `2:151` observation-type-screen | `lib/features/observations/presentation/observation_type_screen.dart` | Selection implemented; Continue target pending |
 | `2:236` basic-information-screen | `lib/features/observations/presentation/basic_information_screen.dart` | Pending |
 | `4:4` employee-information-screen | `lib/features/observations/presentation/employee_information_screen.dart` | Pending |
 | `5:5` observed-event-screen | `lib/features/observations/presentation/observed_event_screen.dart` | Pending |

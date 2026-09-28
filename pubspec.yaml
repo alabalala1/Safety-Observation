@@ -1,14 +1,18 @@
 name: safety_observation
-description: A Flutter application for Safety Observation.
+description: Offline safety observation application for Android.
 publish_to: none
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
+  flutter_svg: 2.0.17
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icons/home/
+    - assets/icons/observation_type/
