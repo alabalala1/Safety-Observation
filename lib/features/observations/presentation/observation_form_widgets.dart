@@ -320,7 +320,7 @@ class _EvidencePhotosState extends State<EvidencePhotos> {
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      ObservationFieldLabel(AppStrings.evidencePhotos),
+      const ObservationFieldLabel(AppStrings.evidencePhotos),
       const SizedBox(height: 8),
       Wrap(spacing: 12, runSpacing: 12, crossAxisAlignment: WrapCrossAlignment.center,
         children: [

@@ -63,12 +63,15 @@ class ReportTransfer {
     return archive;
   }
 
+  static List<int> _bytes(ArchiveFile entry) =>
+      entry.readBytes() ?? (throw const FormatException('Unreadable archive entry'));
+
   static Future<ObservationReport> _import(List<int> bytes,
       {ReportStatus? statusOverride}) async {
     final archive = _decode(bytes);
     final entry = archive.files.where((item) => item.name == 'report.json').toList();
     if (entry.length != 1) throw const FormatException('Missing report');
-    final json = jsonDecode(utf8.decode(entry.single.readBytes())) as Map<String, dynamic>;
+    final json = jsonDecode(utf8.decode(_bytes(entry.single))) as Map<String, dynamic>;
     if (json['schemaVersion'] != 1) throw const FormatException('Unsupported report version');
     final id = json['id'] as String?;
     if (id == null || !RegExp(r'^OBS-[A-Za-z0-9-]{1,60}$').hasMatch(id)) {
@@ -93,12 +96,12 @@ class ReportTransfer {
       for (final name in photoNames) {
         final media = archive.files.singleWhere((item) => item.name == name);
         storedPhotos.add(await AppServices.media.importMedia(id,
-          name.endsWith('.png') ? 'png' : 'jpg', media.readBytes()));
+          name.endsWith('.png') ? 'png' : 'jpg', _bytes(media)));
       }
       String? storedSignature;
       if (signatureName != null) {
         final media = archive.files.singleWhere((item) => item.name == signatureName);
-        storedSignature = await AppServices.media.importMedia(id, 'png', media.readBytes());
+        storedSignature = await AppServices.media.importMedia(id, 'png', _bytes(media));
       }
       final received = report.withDetails(
         status: statusOverride ?? report.status,
@@ -139,13 +142,13 @@ class ReportTransfer {
     final archive = _decode(await file.readAsBytes(), maxEntries: 1001);
     final manifest = archive.files.where((entry) => entry.name == 'backup.json').toList();
     if (manifest.length != 1) throw const FormatException('Invalid backup');
-    final metadata = jsonDecode(utf8.decode(manifest.single.readBytes())) as Map<String, dynamic>;
+    final metadata = jsonDecode(utf8.decode(_bytes(manifest.single))) as Map<String, dynamic>;
     if (metadata['schemaVersion'] != 1) throw const FormatException('Unsupported backup');
     var imported = 0;
     for (final entry in archive.files.where((item) =>
         item.name.startsWith('reports/') && item.name.endsWith('.safety'))) {
       try {
-        await _import(entry.readBytes());
+        await _import(_bytes(entry));
         imported++;
       } on ReportAlreadyExists {
         // Existing report IDs are kept; backup restore never overwrites them.

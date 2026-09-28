@@ -73,9 +73,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _restore() async {
     setState(() => _busy = true);
     try {
-      final selection = await FilePicker.platform.pickFiles(type: FileType.custom,
+      final selection = await FilePicker.pickFile(type: FileType.custom,
         allowedExtensions: ['sbackup']);
-      final path = selection?.files.single.path;
+      final path = selection?.path;
       if (path == null) return;
       final count = await ReportTransfer.importBackup(File(path));
       _message(AppStrings.restoreCount(count));

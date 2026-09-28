@@ -38,13 +38,6 @@ jobs:
       - name: Resolve dependencies
         run: flutter pub get
 
-      - name: Show resolved lockfile for repository sync
-        run: |
-          echo LOCK_BEGIN
-          base64 -w0 pubspec.lock
-          echo
-          echo LOCK_END
-
       - name: Analyze app
         run: flutter analyze lib
 

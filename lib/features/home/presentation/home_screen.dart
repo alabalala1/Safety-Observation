@@ -170,9 +170,9 @@ class HomeScreen extends StatelessWidget {
 
   Future<void> _importReport(BuildContext context) async {
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.custom,
+      final result = await FilePicker.pickFile(type: FileType.custom,
         allowedExtensions: ['safety']);
-      final path = result?.files.single.path;
+      final path = result?.path;
       if (path == null) return;
       final report = await ReportTransfer.importReport(File(path));
       if (!context.mounted) return;
@@ -189,11 +189,7 @@ class HomeScreen extends StatelessWidget {
     }
   }
 
-  static void _pending(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(AppStrings.featurePending)),
-    );
-  }
+
 }
 
 Widget _icon(String name, double size) => SvgPicture.asset(
