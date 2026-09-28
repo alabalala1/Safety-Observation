@@ -5,6 +5,7 @@ import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../observations/presentation/observation_type_screen.dart';
 import '../../reports/presentation/reports_history_screen.dart';
+import '../../observations/domain/observation_report.dart';
 
 const _assets = 'assets/icons/home';
 
@@ -73,11 +74,7 @@ class HomeScreen extends StatelessWidget {
                       description: AppStrings.myReportsDescription,
                       icon: 'file_text',
                       chevron: 'chevron_right_reports',
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const ReportsHistoryScreen(),
-                        ),
-                      ),
+                      onTap: () => _openReports(context),
                     ),
                     const SizedBox(height: 16),
                     _ActionCard(
@@ -102,25 +99,25 @@ class HomeScreen extends StatelessWidget {
                         _StatusCard(
                           icon: 'pencil_line',
                           label: AppStrings.drafts,
-                          onTap: () => _pending(context),
+                          onTap: () => _openReports(context, ReportStatus.draft),
                         ),
                         const SizedBox(width: 8),
                         _StatusCard(
                           icon: 'clock',
                           label: AppStrings.pending,
-                          onTap: () => _pending(context),
+                          onTap: () => _openReports(context, ReportStatus.inProgress),
                         ),
                         const SizedBox(width: 8),
                         _StatusCard(
                           icon: 'check_circle',
                           label: AppStrings.completed,
-                          onTap: () => _pending(context),
+                          onTap: () => _openReports(context, ReportStatus.completed),
                         ),
                         const SizedBox(width: 8),
                         _StatusCard(
                           icon: 'history',
                           label: AppStrings.recent,
-                          onTap: () => _pending(context),
+                          onTap: () => _openReports(context),
                         ),
                       ],
                     ),
@@ -159,6 +156,11 @@ class HomeScreen extends StatelessWidget {
       ),
     );
   }
+
+  void _openReports(BuildContext context, [ReportStatus? status]) =>
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => ReportsHistoryScreen(initialStatus: status),
+      ));
 
   static void _pending(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(

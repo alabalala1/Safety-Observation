@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../domain/observation_report.dart';
+import '../data/draft_autosave.dart';
 import 'observation_form_widgets.dart';
 import 'safety_categories_screen.dart';
 
@@ -20,25 +21,49 @@ class _ActionTakenScreenState extends State<ActionTakenScreen> {
       TextEditingController(text: widget.report.actionTaken);
   late final TextEditingController _further =
       TextEditingController(text: widget.report.furtherActions);
+  late final DraftAutosave _autosave = DraftAutosave(widget.report.id, (_) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.saveFailed)));
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    _action.addListener(_schedule);
+    _further.addListener(_schedule);
+  }
+
+  void _schedule() {
+    final action = _action.text.trim();
+    final further = _further.text.trim();
+    _autosave.schedule((report) => report.withDetails(
+      actionTaken: action, furtherActions: further));
+  }
 
   @override
   void dispose() {
+    _autosave.close();
     _action.dispose();
     _further.dispose();
     super.dispose();
   }
 
-  void _continue() {
+  Future<void> _continue() async {
     if (_action.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(AppStrings.actionRequired)));
       return;
     }
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => SafetyCategoriesScreen(report: widget.report.withDetails(
-        actionTaken: _action.text.trim(), furtherActions: _further.text.trim(),
-      )),
-    ));
+    try {
+      final report = await _autosave.flush();
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => SafetyCategoriesScreen(report: report),
+      ));
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
   }
 
   @override

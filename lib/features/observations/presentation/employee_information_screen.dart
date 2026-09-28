@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
+import '../data/draft_autosave.dart';
 import 'observation_form_widgets.dart';
 import 'observed_event_screen.dart';
 
@@ -20,28 +21,53 @@ class _EmployeeInformationScreenState extends State<EmployeeInformationScreen> {
   late final TextEditingController _name = TextEditingController(text: widget.report.employeeName);
   late final TextEditingController _number = TextEditingController(text: widget.report.employeeNumber);
   late final TextEditingController _department = TextEditingController(text: widget.report.employeeDepartment);
+  late final DraftAutosave _autosave = DraftAutosave(widget.report.id, (_) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.saveFailed)));
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    _name.addListener(_schedule);
+    _number.addListener(_schedule);
+    _department.addListener(_schedule);
+  }
+
+  void _schedule() {
+    final name = _name.text.trim();
+    final number = _number.text.trim();
+    final department = _department.text.trim();
+    _autosave.schedule((report) => report.withDetails(
+      employeeName: name, employeeNumber: number,
+      employeeDepartment: department));
+  }
 
   @override
   void dispose() {
+    _autosave.close();
     _name.dispose();
     _number.dispose();
     _department.dispose();
     super.dispose();
   }
 
-  void _continue() {
+  Future<void> _continue() async {
     if (_name.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(AppStrings.employeeNameRequired)));
       return;
     }
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => ObservedEventScreen(report: widget.report.withDetails(
-        employeeName: _name.text.trim(),
-        employeeNumber: _number.text.trim(),
-        employeeDepartment: _department.text.trim(),
-      )),
-    ));
+    try {
+      final report = await _autosave.flush();
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => ObservedEventScreen(report: report),
+      ));
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
   }
 
   @override

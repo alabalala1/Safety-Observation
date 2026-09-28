@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
+import '../data/draft_autosave.dart';
 import 'observation_form_widgets.dart';
 import 'safe_unsafe_actions_screen.dart';
 
@@ -18,7 +19,17 @@ class SafetyCategoriesScreen extends StatefulWidget {
 
 class _SafetyCategoriesScreenState extends State<SafetyCategoriesScreen> {
   late final Set<String> _selected = widget.report.safetyCategories.toSet();
+  late final DraftAutosave _autosave = DraftAutosave(widget.report.id, (_) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.saveFailed)));
+  });
   bool get _allCorrect => _selected.contains(AppStrings.allCorrect);
+
+  @override
+  void dispose() {
+    _autosave.close();
+    super.dispose();
+  }
 
   void _toggle(String category) => setState(() {
     if (category == AppStrings.allCorrect) {
@@ -31,18 +42,28 @@ class _SafetyCategoriesScreenState extends State<SafetyCategoriesScreen> {
       _selected.remove(AppStrings.allCorrect);
       if (!_selected.add(category)) _selected.remove(category);
     }
+    final categories = _selected.toList();
+    _autosave.schedule((report) => report.withDetails(safetyCategories: categories));
   });
+
+  Future<void> _continue() async {
+    try {
+      final report = await _autosave.flush();
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => SafeUnsafeActionsScreen(report: report)));
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) => ObservationStepScaffold(
     title: AppStrings.safetyCategories,
     step: 7,
     iconDirectory: _icons,
-    onContinue: () => Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => SafeUnsafeActionsScreen(report: widget.report.withDetails(
-        safetyCategories: _selected.toList(),
-      )),
-    )),
+    onContinue: _continue,
     children: [
       Material(
         color: _allCorrect ? const Color(0xFFDCFCE7) : Colors.white,

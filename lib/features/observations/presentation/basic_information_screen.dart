@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
+import '../data/draft_autosave.dart';
 import 'employee_information_screen.dart';
 
 const _assets = 'assets/icons/basic_information';
@@ -19,6 +20,22 @@ class BasicInformationScreen extends StatefulWidget {
 
 class _BasicInformationScreenState extends State<BasicInformationScreen> {
   String? _area;
+  late final DraftAutosave _autosave = DraftAutosave(widget.report.id, (_) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.saveFailed)));
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    _area = widget.report.area.isEmpty ? null : widget.report.area;
+  }
+
+  @override
+  void dispose() {
+    _autosave.close();
+    super.dispose();
+  }
 
   Future<void> _chooseArea() async {
     final controller = TextEditingController(text: _area ?? '');
@@ -52,20 +69,27 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
     controller.dispose();
     if (!mounted || selected == null) return;
     setState(() => _area = selected.isEmpty ? null : selected);
+    final area = _area ?? '';
+    _autosave.schedule((report) => report.withDetails(area: area));
   }
 
-  void _continue() {
+  Future<void> _continue() async {
     if (_area == null || _area!.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(AppStrings.areaRequired)),
       );
       return;
     }
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => EmployeeInformationScreen(
-        report: widget.report.withDetails(area: _area),
-      ),
-    ));
+    try {
+      final report = await _autosave.flush();
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => EmployeeInformationScreen(report: report),
+      ));
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../app/app_services.dart';
 import '../domain/observation_report.dart';
 import 'observation_form_widgets.dart';
 
@@ -22,7 +23,7 @@ class ReviewAndSaveScreen extends StatelessWidget {
       progress: 1,
       iconDirectory: _icons,
       buttonLabel: AppStrings.completeReport,
-      onContinue: () => _pending(context),
+      onContinue: () => _save(context, complete: true),
       children: [
         Container(
           padding: const EdgeInsets.all(16),
@@ -65,7 +66,7 @@ class ReviewAndSaveScreen extends StatelessWidget {
         _SummaryText(AppStrings.actionTaken, report.actionTaken),
         const SizedBox(height: 20),
         OutlinedButton(
-          onPressed: () => _pending(context),
+          onPressed: () => _save(context, complete: false),
           style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           child: const Text(AppStrings.saveDraftOnly),
         ),
@@ -73,8 +74,28 @@ class ReviewAndSaveScreen extends StatelessWidget {
     );
   }
 
-  void _pending(BuildContext context) => ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text(AppStrings.storagePending)));
+  Future<void> _save(BuildContext context, {required bool complete}) async {
+    try {
+      final current = await AppServices.reports.findById(report.id);
+      if (current == null) throw StateError('Report not found');
+      if (complete && (current.area.isEmpty || current.employeeName.isEmpty ||
+          current.observedEvent.isEmpty || current.potentialHazard.isEmpty ||
+          current.actionTaken.isEmpty || current.risk == null)) {
+        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(AppStrings.completeRequired)));
+        return;
+      }
+      await AppServices.reports.update(report.id, (value) => value.withDetails(
+        status: complete ? ReportStatus.completed : ReportStatus.draft));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(
+        complete ? AppStrings.reportCompleted : AppStrings.draftSaved)));
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } catch (_) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
+  }
 }
 
 class _SummaryRow extends StatelessWidget {

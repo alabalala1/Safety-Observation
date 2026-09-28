@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
+import '../data/draft_autosave.dart';
 import 'attachments_screen.dart';
 import 'observation_form_widgets.dart';
 
@@ -22,27 +23,52 @@ class _SupervisorNotificationScreenState extends State<SupervisorNotificationScr
       TextEditingController(text: widget.report.supervisorName);
   late final TextEditingController _notes =
       TextEditingController(text: widget.report.supervisorFurtherAction);
+  late final DraftAutosave _autosave = DraftAutosave(widget.report.id, (_) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.saveFailed)));
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    _name.addListener(_schedule);
+    _notes.addListener(_schedule);
+  }
+
+  void _schedule() {
+    final notified = _notified;
+    final name = _name.text.trim();
+    final notes = _notes.text.trim();
+    _autosave.schedule((report) => report.withDetails(
+      supervisorNotified: notified,
+      supervisorName: notified ? name : '',
+      supervisorFurtherAction: notes,
+    ));
+  }
 
   @override
   void dispose() {
+    _autosave.close();
     _name.dispose();
     _notes.dispose();
     super.dispose();
   }
 
-  void _continue() {
+  Future<void> _continue() async {
     if (_notified && _name.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(AppStrings.supervisorNameRequired)));
       return;
     }
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => AttachmentsScreen(report: widget.report.withDetails(
-        supervisorNotified: _notified,
-        supervisorName: _notified ? _name.text.trim() : '',
-        supervisorFurtherAction: _notes.text.trim(),
-      )),
-    ));
+    try {
+      final report = await _autosave.flush();
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => AttachmentsScreen(report: report)));
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
   }
 
   @override
@@ -61,7 +87,10 @@ class _SupervisorNotificationScreenState extends State<SupervisorNotificationScr
             ButtonSegment(value: false, label: Text(AppStrings.no)),
           ],
           selected: {_notified},
-          onSelectionChanged: (selection) => setState(() => _notified = selection.first),
+          onSelectionChanged: (selection) {
+            setState(() => _notified = selection.first);
+            _schedule();
+          },
         ),
       ]),
       if (_notified) ...[

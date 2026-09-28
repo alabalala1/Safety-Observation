@@ -58,6 +58,11 @@ abstract final class AppStrings {
   static const continueLabel = 'Continue';
   static const cancel = 'Cancel';
   static const save = 'Save';
+  static const saveFailed = 'Unable to save the report. Please try again.';
+  static const loadFailed = 'Unable to load reports. Please try again.';
+  static const completeRequired = 'Complete the required report fields before finishing.';
+  static const reportCompleted = 'Report completed and saved on this device.';
+  static const draftSaved = 'Draft saved on this device.';
   static String stepOfTen(int step) => 'Step $step of 10';
   static const employeeInfo = 'Employee Info';
   static const employeeInfoNotice = 'Enter the employee details for this report.';

@@ -89,6 +89,33 @@ class ObservationReport {
   final String? signaturePath;
   final List<String> attachmentPaths;
 
+  factory ObservationReport.fromJson(Map<String, dynamic> json) => ObservationReport(
+        id: json['id'] as String,
+        type: ObservationType.values.byName(json['type'] as String),
+        status: ReportStatus.values.byName(json['status'] as String),
+        createdAt: DateTime.parse(json['createdAt'] as String),
+        updatedAt: DateTime.parse(json['updatedAt'] as String),
+        stopCardCategory: json['stopCardCategory'] == null ? null :
+            StopCardCategory.values.byName(json['stopCardCategory'] as String),
+        area: (json['area'] as String?) ?? '',
+        employeeName: (json['employeeName'] as String?) ?? '',
+        employeeDepartment: (json['employeeDepartment'] as String?) ?? '',
+        employeeNumber: (json['employeeNumber'] as String?) ?? '',
+        observedEvent: (json['observedEvent'] as String?) ?? '',
+        potentialHazard: (json['potentialHazard'] as String?) ?? '',
+        actionTaken: (json['actionTaken'] as String?) ?? '',
+        furtherActions: (json['furtherActions'] as String?) ?? '',
+        safetyCategories: List<String>.from((json['safetyCategories'] as List<dynamic>?) ?? []),
+        encouragement: (json['encouragement'] as String?) ?? '',
+        immediateCorrectiveAction: (json['immediateCorrectiveAction'] as String?) ?? '',
+        risk: json['risk'] == null ? null : RiskRanking.values.byName(json['risk'] as String),
+        supervisorNotified: (json['supervisorNotified'] as bool?) ?? false,
+        supervisorName: (json['supervisorName'] as String?) ?? '',
+        supervisorFurtherAction: (json['supervisorFurtherAction'] as String?) ?? '',
+        signaturePath: json['signaturePath'] as String?,
+        attachmentPaths: List<String>.from((json['attachmentPaths'] as List<dynamic>?) ?? []),
+      );
+
   ObservationReport withDetails({
     String? area,
     String? employeeName,
@@ -105,11 +132,14 @@ class ObservationReport {
     bool? supervisorNotified,
     String? supervisorName,
     String? supervisorFurtherAction,
+    ReportStatus? status,
+    String? signaturePath,
+    List<String>? attachmentPaths,
   }) =>
       ObservationReport(
         id: id,
         type: type,
-        status: status,
+        status: status ?? this.status,
         createdAt: createdAt,
         updatedAt: DateTime.now(),
         stopCardCategory: stopCardCategory,
@@ -128,8 +158,8 @@ class ObservationReport {
         supervisorNotified: supervisorNotified ?? this.supervisorNotified,
         supervisorName: supervisorName ?? this.supervisorName,
         supervisorFurtherAction: supervisorFurtherAction ?? this.supervisorFurtherAction,
-        signaturePath: signaturePath,
-        attachmentPaths: attachmentPaths,
+        signaturePath: signaturePath ?? this.signaturePath,
+        attachmentPaths: attachmentPaths ?? this.attachmentPaths,
       );
 
   Map<String, Object?> toJson() => {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
+import '../data/draft_autosave.dart';
 import 'observation_form_widgets.dart';
 import 'supervisor_notification_screen.dart';
 
@@ -18,6 +19,16 @@ class RiskRankingScreen extends StatefulWidget {
 
 class _RiskRankingScreenState extends State<RiskRankingScreen> {
   RiskRanking? _selected;
+  late final DraftAutosave _autosave = DraftAutosave(widget.report.id, (_) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.saveFailed)));
+  });
+
+  @override
+  void dispose() {
+    _autosave.close();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -25,15 +36,21 @@ class _RiskRankingScreenState extends State<RiskRankingScreen> {
     _selected = widget.report.risk;
   }
 
-  void _continue() {
+  Future<void> _continue() async {
     if (_selected == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(AppStrings.riskRequired)));
       return;
     }
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => SupervisorNotificationScreen(report: widget.report.withDetails(risk: _selected)),
-    ));
+    try {
+      final report = await _autosave.flush();
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => SupervisorNotificationScreen(report: report)));
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
   }
 
   @override
@@ -48,7 +65,10 @@ class _RiskRankingScreenState extends State<RiskRankingScreen> {
       const SizedBox(height: 20),
       for (final risk in RiskRanking.values) ...[
         _RiskCard(risk: risk, selected: _selected == risk,
-          onTap: () => setState(() => _selected = risk)),
+          onTap: () {
+            setState(() => _selected = risk);
+            _autosave.schedule((report) => report.withDetails(risk: risk));
+          }),
         const SizedBox(height: 12),
       ],
     ],

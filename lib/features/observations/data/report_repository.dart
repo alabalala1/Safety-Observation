@@ -13,4 +13,9 @@ abstract interface class ReportRepository {
   });
 
   Future<void> delete(String id);
+
+  Future<ObservationReport> update(
+    String id,
+    ObservationReport Function(ObservationReport report) change,
+  );
 }

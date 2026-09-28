@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
+import '../data/draft_autosave.dart';
 import 'observation_form_widgets.dart';
 import 'risk_ranking_screen.dart';
 
@@ -21,9 +22,40 @@ class _SafeUnsafeActionsScreenState extends State<SafeUnsafeActionsScreen> {
       TextEditingController(text: widget.report.encouragement);
   late final TextEditingController _correction =
       TextEditingController(text: widget.report.immediateCorrectiveAction);
+  late final DraftAutosave _autosave = DraftAutosave(widget.report.id, (_) {
+    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.saveFailed)));
+  });
+
+  @override
+  void initState() {
+    super.initState();
+    _encouragement.addListener(_schedule);
+    _correction.addListener(_schedule);
+  }
+
+  void _schedule() {
+    final encouragement = _encouragement.text.trim();
+    final correction = _correction.text.trim();
+    _autosave.schedule((report) => report.withDetails(
+      encouragement: encouragement, immediateCorrectiveAction: correction));
+  }
+
+  Future<void> _continue() async {
+    try {
+      final report = await _autosave.flush();
+      if (!mounted) return;
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => RiskRankingScreen(report: report)));
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
+  }
 
   @override
   void dispose() {
+    _autosave.close();
     _encouragement.dispose();
     _correction.dispose();
     super.dispose();
@@ -39,12 +71,7 @@ class _SafeUnsafeActionsScreenState extends State<SafeUnsafeActionsScreen> {
     title: AppStrings.safeUnsafeActions,
     step: 8,
     iconDirectory: _icons,
-    onContinue: () => Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => RiskRankingScreen(report: widget.report.withDetails(
-        encouragement: _encouragement.text.trim(),
-        immediateCorrectiveAction: _correction.text.trim(),
-      )),
-    )),
+    onContinue: _continue,
     children: [
       const ObservationNotice(text: AppStrings.safeUnsafeNotice,
         iconDirectory: _icons, icon: 'info'),
