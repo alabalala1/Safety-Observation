@@ -134,7 +134,7 @@ class ObservationStepScaffold extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(buttonLabel,
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                       const SizedBox(width: 8),
                       ObservationIcon(iconDirectory, 'arrow_right', 20),
                     ],
