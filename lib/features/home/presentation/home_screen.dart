@@ -248,7 +248,7 @@ class _PrimaryCard extends StatelessWidget {
       color: AppColors.orange,
       borderRadius: BorderRadius.circular(16),
       elevation: 7,
-      shadowColor: AppColors.orange.withOpacity(0.18),
+      shadowColor: AppColors.orange.withValues(alpha: 0.18),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
