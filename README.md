@@ -4,7 +4,7 @@ Flutter application for Android safety observations. Version one is offline firs
 
 ## Current state
 
-The repository contains an app entry point, the Home and Observation Type screens in separate Dart files, local Figma SVG assets, shared theme/text, and the report domain model. The screen actions beyond choosing a type are still being implemented; data is not yet persisted. Progress is tracked in [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md).
+The repository contains an app entry point, the Home, Observation Type, and Basic Info screens in separate Dart files, local Figma SVG assets, shared theme/text, and the report domain model. The draft is not yet persisted; further screens and actions are still being implemented. Progress is tracked in [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md).
 
 The Figma file has 15 frames. Each is mapped to a separate screen file in [docs/DESIGN_MAPPING.md](docs/DESIGN_MAPPING.md). No short-lived Figma asset URLs are used at runtime.
 

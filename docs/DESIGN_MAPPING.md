@@ -6,7 +6,7 @@ Design file: `eNLkUWaaTxCcfWNCEK4X3P`, page `0:1`. Each frame becomes one Dart s
 | --- | --- | --- |
 | `2:4` home-screen | `lib/features/home/presentation/home_screen.dart` | UI implemented; data actions pending |
 | `2:151` observation-type-screen | `lib/features/observations/presentation/observation_type_screen.dart` | Selection implemented; Continue target pending |
-| `2:236` basic-information-screen | `lib/features/observations/presentation/basic_information_screen.dart` | Pending |
+| `2:236` basic-information-screen | `lib/features/observations/presentation/basic_information_screen.dart` | UI and Area entry; local saving and next step pending |
 | `4:4` employee-information-screen | `lib/features/observations/presentation/employee_information_screen.dart` | Pending |
 | `5:5` observed-event-screen | `lib/features/observations/presentation/observed_event_screen.dart` | Pending |
 | `5:71` potential-hazard-screen | `lib/features/observations/presentation/potential_hazard_screen.dart` | Pending |

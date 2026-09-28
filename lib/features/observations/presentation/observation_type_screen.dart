@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
+import 'basic_information_screen.dart';
 
 const _assets = 'assets/icons/observation_type';
 
@@ -131,11 +132,17 @@ class _ObservationTypeScreenState extends State<ObservationTypeScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _canContinue
-                    ? () => ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(AppStrings.featurePending),
+                    ? () {
+                        final report = ObservationReport.newDraft(
+                          type: _selectedType!,
+                          stopCardCategory: _stopCardCategory,
+                        );
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => BasicInformationScreen(report: report),
                           ),
-                        )
+                        );
+                      }
                     : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.orange,

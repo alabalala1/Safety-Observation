@@ -1,3 +1,5 @@
+import 'dart:math';
+
 /// The report is the unit of storage and transfer; it is independent of the
 /// screen currently editing it.
 enum ObservationType { nearMiss, tofs, hazardId, stopCard }
@@ -17,6 +19,26 @@ enum ReportStatus {
 }
 
 class ObservationReport {
+  factory ObservationReport.newDraft({
+    required ObservationType type,
+    StopCardCategory? stopCardCategory,
+  }) {
+    final now = DateTime.now();
+    final random = Random.secure();
+    final suffix = List.generate(
+      3,
+      (_) => random.nextInt(0x10000).toRadixString(16).padLeft(4, '0'),
+    ).join().toUpperCase();
+    return ObservationReport(
+      id: 'OBS-${now.year}-$suffix',
+      type: type,
+      stopCardCategory: stopCardCategory,
+      status: ReportStatus.draft,
+      createdAt: now,
+      updatedAt: now,
+    );
+  }
+
   const ObservationReport({
     required this.id,
     required this.type,
