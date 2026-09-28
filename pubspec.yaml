@@ -17,3 +17,7 @@ flutter:
     - assets/icons/home/
     - assets/icons/observation_type/
     - assets/icons/basic_information/
+    - assets/icons/employee_information/
+    - assets/icons/observed_event/
+    - assets/icons/potential_hazard/
+    - assets/icons/action_taken/

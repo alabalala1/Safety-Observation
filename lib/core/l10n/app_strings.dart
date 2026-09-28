@@ -56,4 +56,40 @@ abstract final class AppStrings {
   static const continueLabel = 'Continue';
   static const cancel = 'Cancel';
   static const save = 'Save';
+  static String stepOfTen(int step) => 'Step $step of 10';
+  static const employeeInfo = 'Employee Info';
+  static const employeeInfoNotice = 'Enter the employee details for this report.';
+  static const employeeName = 'Employee Name';
+  static const employeeNumber = 'Employee Number';
+  static const department = 'Department';
+  static const enterEmployeeName = 'Enter employee name';
+  static const enterEmployeeNumber = 'Enter employee number';
+  static const enterDepartment = 'Enter department';
+  static const employeeNameRequired = 'Enter the employee name before continuing.';
+  static const auto = 'Auto';
+  static const observedEvent = 'Observed Event';
+  static const observedEventNotice =
+      'Be specific. Note hazards, equipment IDs, and immediate actions taken.';
+  static const describeObservedEvent = 'Describe Observed Event';
+  static const observedEventHint = 'Describe what you observed in detail...';
+  static const eventRequired = 'Describe the observed event before continuing.';
+  static const evidencePhotos = 'Evidence Photos';
+  static const addPhoto = 'Add Photo';
+  static const photosPending = 'Adding photos is being implemented.';
+  static const potentialHazard = 'Potential Hazard';
+  static const potentialHazardNotice =
+      'Anticipate worst-case scenarios. Detail what could happen if no corrective action is taken.';
+  static const describePotentialHazard = 'Describe Potential Hazard / Outcome';
+  static const potentialHazardHint =
+      'Describe the potential hazard, expected outcome, and possible impact...';
+  static const hazardRequired = 'Describe the potential hazard before continuing.';
+  static const actionTaken = 'Action Taken';
+  static const actionTakenNotice =
+      'Document immediate corrections & ongoing risk mitigations.';
+  static const actionTakenLabel = 'Action Taken to Minimize Recurrence';
+  static const actionTakenHint = 'Describe the immediate actions taken...';
+  static const furtherActionsLabel = 'Further Action(s) Required';
+  static const furtherActionsHint = 'Describe any additional actions needed...';
+  static const actionRequired = 'Describe the action taken before continuing.';
+  static const nextScreenPending = 'The next step is being implemented. Draft in memory:';
 }

@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
+import 'employee_information_screen.dart';
 
 const _assets = 'assets/icons/basic_information';
 
@@ -54,12 +55,17 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
   }
 
   void _continue() {
-    final message = (_area == null || _area!.isEmpty)
-        ? AppStrings.areaRequired
-        : AppStrings.featurePending;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    if (_area == null || _area!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.areaRequired)),
+      );
+      return;
+    }
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => EmployeeInformationScreen(
+        report: widget.report.withDetails(area: _area),
+      ),
+    ));
   }
 
   @override

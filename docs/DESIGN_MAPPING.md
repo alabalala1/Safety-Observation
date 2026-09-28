@@ -7,10 +7,10 @@ Design file: `eNLkUWaaTxCcfWNCEK4X3P`, page `0:1`. Each frame becomes one Dart s
 | `2:4` home-screen | `lib/features/home/presentation/home_screen.dart` | UI implemented; data actions pending |
 | `2:151` observation-type-screen | `lib/features/observations/presentation/observation_type_screen.dart` | Selection implemented; Continue target pending |
 | `2:236` basic-information-screen | `lib/features/observations/presentation/basic_information_screen.dart` | UI and Area entry; local saving and next step pending |
-| `4:4` employee-information-screen | `lib/features/observations/presentation/employee_information_screen.dart` | Pending |
-| `5:5` observed-event-screen | `lib/features/observations/presentation/observed_event_screen.dart` | Pending |
-| `5:71` potential-hazard-screen | `lib/features/observations/presentation/potential_hazard_screen.dart` | Pending |
-| `5:143` action-taken-screen | `lib/features/observations/presentation/action_taken_screen.dart` | Pending |
+| `4:4` employee-information-screen | `lib/features/observations/presentation/employee_information_screen.dart` | UI and input navigation implemented; no profile prefill yet |
+| `5:5` observed-event-screen | `lib/features/observations/presentation/observed_event_screen.dart` | UI and description input implemented; photo capture and disk saving pending |
+| `5:71` potential-hazard-screen | `lib/features/observations/presentation/potential_hazard_screen.dart` | UI and description input implemented; photo capture and disk saving pending |
+| `5:143` action-taken-screen | `lib/features/observations/presentation/action_taken_screen.dart` | UI and text input implemented; next screen and disk saving pending |
 | `6:5` safety-categories-screen | `lib/features/observations/presentation/safety_categories_screen.dart` | Pending |
 | `6:120` safe-unsafe-actions | `lib/features/observations/presentation/safe_unsafe_actions_screen.dart` | Pending |
 | `6:163` risk-ranking | `lib/features/observations/presentation/risk_ranking_screen.dart` | Pending |

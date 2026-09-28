@@ -89,6 +89,42 @@ class ObservationReport {
   final String? signaturePath;
   final List<String> attachmentPaths;
 
+  ObservationReport withDetails({
+    String? area,
+    String? employeeName,
+    String? employeeNumber,
+    String? employeeDepartment,
+    String? observedEvent,
+    String? potentialHazard,
+    String? actionTaken,
+    String? furtherActions,
+  }) =>
+      ObservationReport(
+        id: id,
+        type: type,
+        status: status,
+        createdAt: createdAt,
+        updatedAt: DateTime.now(),
+        stopCardCategory: stopCardCategory,
+        area: area ?? this.area,
+        employeeName: employeeName ?? this.employeeName,
+        employeeNumber: employeeNumber ?? this.employeeNumber,
+        employeeDepartment: employeeDepartment ?? this.employeeDepartment,
+        observedEvent: observedEvent ?? this.observedEvent,
+        potentialHazard: potentialHazard ?? this.potentialHazard,
+        actionTaken: actionTaken ?? this.actionTaken,
+        furtherActions: furtherActions ?? this.furtherActions,
+        safetyCategories: safetyCategories,
+        encouragement: encouragement,
+        immediateCorrectiveAction: immediateCorrectiveAction,
+        risk: risk,
+        supervisorNotified: supervisorNotified,
+        supervisorName: supervisorName,
+        supervisorFurtherAction: supervisorFurtherAction,
+        signaturePath: signaturePath,
+        attachmentPaths: attachmentPaths,
+      );
+
   Map<String, Object?> toJson() => {
         'schemaVersion': 1,
         'id': id,
