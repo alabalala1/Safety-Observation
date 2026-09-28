@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../app/app_services.dart';
 
 class ObservationStepScaffold extends StatelessWidget {
   const ObservationStepScaffold({
@@ -264,4 +267,87 @@ class ObservationTextArea extends StatelessWidget {
           ),
         ],
       );
+}
+
+class EvidencePhotos extends StatefulWidget {
+  const EvidencePhotos({super.key, required this.reportId,
+    required this.iconDirectory, required this.initialPaths});
+  final String reportId;
+  final String iconDirectory;
+  final List<String> initialPaths;
+
+  @override
+  State<EvidencePhotos> createState() => _EvidencePhotosState();
+}
+
+class _EvidencePhotosState extends State<EvidencePhotos> {
+  late List<String> _paths = List.of(widget.initialPaths);
+
+  Future<void> _add(ImageSource source) async {
+    try {
+      final report = await AppServices.media.addPhoto(widget.reportId, source);
+      if (mounted && report != null) setState(() => _paths = report.attachmentPaths);
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.photoFailed)));
+    }
+  }
+
+  Future<void> _choose() async {
+    final source = await showModalBottomSheet<ImageSource>(context: context,
+      builder: (sheet) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ListTile(leading: const Icon(Icons.camera_alt_outlined),
+          title: const Text(AppStrings.takePhoto),
+          onTap: () => Navigator.pop(sheet, ImageSource.camera)),
+        ListTile(leading: const Icon(Icons.photo_library_outlined),
+          title: const Text(AppStrings.gallery),
+          onTap: () => Navigator.pop(sheet, ImageSource.gallery)),
+      ])));
+    if (source != null) await _add(source);
+  }
+
+  Future<void> _remove(String path) async {
+    try {
+      final report = await AppServices.media.removePhoto(widget.reportId, path);
+      if (mounted) setState(() => _paths = report.attachmentPaths);
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.photoFailed)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      ObservationFieldLabel(AppStrings.evidencePhotos),
+      const SizedBox(height: 8),
+      Wrap(spacing: 12, runSpacing: 12, crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          OutlinedButton.icon(
+            onPressed: _choose,
+            icon: ObservationIcon(widget.iconDirectory, 'camera', 18),
+            label: const Text(AppStrings.addPhoto),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.secondaryInk,
+              side: const BorderSide(color: AppColors.border, width: 1.5),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+          ),
+          for (final path in _paths)
+            Stack(clipBehavior: Clip.none, children: [
+              ClipRRect(borderRadius: BorderRadius.circular(8),
+                child: Image.file(File(path), width: 54, height: 52, fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox(width: 54, height: 52,
+                    child: Icon(Icons.broken_image_outlined)))),
+              Positioned(right: -5, top: -5,
+                child: InkWell(onTap: () => _remove(path),
+                  child: const CircleAvatar(radius: 10, backgroundColor: Color(0xFFEF4444),
+                    child: Icon(Icons.close, size: 12, color: Colors.white)))),
+            ]),
+        ],
+      ),
+    ],
+  );
 }

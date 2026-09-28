@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../observations/presentation/observation_type_screen.dart';
 import '../../reports/presentation/reports_history_screen.dart';
 import '../../observations/domain/observation_report.dart';
+import '../../reports/data/report_transfer.dart';
+import '../../reports/presentation/report_details_screen.dart';
+import '../../settings/presentation/settings_screen.dart';
 
 const _assets = 'assets/icons/home';
 
@@ -59,7 +64,8 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const _Header(),
+                    _Header(onSettings: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(builder: (_) => const SettingsScreen()))),
                     const SizedBox(height: 16),
                     _PrimaryCard(
                       onTap: () => Navigator.of(context).push(
@@ -82,7 +88,7 @@ class HomeScreen extends StatelessWidget {
                       description: AppStrings.importReportDescription,
                       icon: 'download',
                       chevron: 'chevron_right_import',
-                      onTap: () => _pending(context),
+                      onTap: () => _importReport(context),
                     ),
                     const SizedBox(height: 28),
                     const Text(
@@ -162,6 +168,27 @@ class HomeScreen extends StatelessWidget {
         builder: (_) => ReportsHistoryScreen(initialStatus: status),
       ));
 
+  Future<void> _importReport(BuildContext context) async {
+    try {
+      final result = await FilePicker.platform.pickFiles(type: FileType.custom,
+        allowedExtensions: ['safety']);
+      final path = result?.files.single.path;
+      if (path == null) return;
+      final report = await ReportTransfer.importReport(File(path));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.reportImported)));
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => ReportDetailsScreen(report: report)));
+    } on ReportAlreadyExists {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.reportAlreadyExists)));
+    } catch (_) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.importFailed)));
+    }
+  }
+
   static void _pending(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text(AppStrings.featurePending)),
@@ -176,7 +203,8 @@ Widget _icon(String name, double size) => SvgPicture.asset(
     );
 
 class _Header extends StatelessWidget {
-  const _Header();
+  const _Header({required this.onSettings});
+  final VoidCallback onSettings;
 
   @override
   Widget build(BuildContext context) {
@@ -239,6 +267,8 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
+        IconButton(onPressed: onSettings, tooltip: AppStrings.settings,
+          icon: const Icon(Icons.settings_outlined, color: AppColors.ink)),
       ],
     );
   }

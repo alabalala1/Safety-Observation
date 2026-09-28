@@ -15,7 +15,7 @@ class SqliteReportRepository implements ReportRepository {
 
   Future<Database> _open() async => openDatabase(
         p.join(await getDatabasesPath(), 'safety_observation.db'),
-        version: 1,
+        version: 2,
         onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
         onCreate: (db, version) async {
           await db.execute('''
@@ -42,8 +42,40 @@ class SqliteReportRepository implements ReportRepository {
               occurred_at TEXT NOT NULL
             )
           ''');
+          await _createProfileTable(db);
+        },
+        onUpgrade: (db, oldVersion, newVersion) async {
+          if (oldVersion < 2) await _createProfileTable(db);
         },
       );
+
+  Future<void> _createProfileTable(DatabaseExecutor db) async {
+    await db.execute('''CREATE TABLE user_profile (
+      id INTEGER PRIMARY KEY CHECK (id = 1),
+      name TEXT NOT NULL DEFAULT '',
+      employee_number TEXT NOT NULL DEFAULT '',
+      department TEXT NOT NULL DEFAULT ''
+    )''');
+  }
+
+  Future<Map<String, String>> loadProfile() async {
+    final rows = await (await _db).query('user_profile', where: 'id = 1', limit: 1);
+    if (rows.isEmpty) return {'name': '', 'employeeNumber': '', 'department': ''};
+    final row = rows.first;
+    return {
+      'name': row['name'] as String,
+      'employeeNumber': row['employee_number'] as String,
+      'department': row['department'] as String,
+    };
+  }
+
+  Future<void> saveProfile({required String name, required String employeeNumber,
+      required String department}) async {
+    await (await _db).insert('user_profile', {
+      'id': 1, 'name': name, 'employee_number': employeeNumber,
+      'department': department,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
+  }
 
   Map<String, Object?> _row(ObservationReport report) => {
         'id': report.id,

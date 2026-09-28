@@ -22,6 +22,22 @@ abstract final class AppStrings {
   static const recent = 'Recent';
   static const offlineNotice =
       'Reports are saved on this device. Export a backup regularly to protect your data.';
+  static const settings = 'Settings';
+  static const myProfile = 'My Profile';
+  static const saveProfile = 'Save Profile';
+  static const profileSaved = 'Profile saved on this device.';
+  static const backupTitle = 'Backup & Restore';
+  static const backupExplanation = 'A backup includes all reports, photos, and signatures. Store the exported file in a secure location.';
+  static const exportBackup = 'Export Backup';
+  static const restoreBackup = 'Restore Backup';
+  static const backupFailed = 'Unable to export backup.';
+  static const restoreFailed = 'Unable to restore backup.';
+  static String restoreCount(int count) => '$count reports restored.';
+  static const reportImported = 'Report imported on this device.';
+  static const reportAlreadyExists = 'This report is already on this device.';
+  static const importFailed = 'Unable to import report.';
+  static const pdfFailed = 'Unable to export PDF.';
+  static const exportFailed = 'Unable to export report.';
   static const featurePending = 'This feature is being implemented.';
   static const selectObservationType = 'Select Observation Type';
   static const stepOneOfTen = 'Step 1 of 10';
@@ -83,6 +99,7 @@ abstract final class AppStrings {
   static const evidencePhotos = 'Evidence Photos';
   static const addPhoto = 'Add Photo';
   static const photosPending = 'Adding photos is being implemented.';
+  static const photoFailed = 'Unable to add or remove photo. Please try again.';
   static const potentialHazard = 'Potential Hazard';
   static const potentialHazardNotice =
       'Anticipate worst-case scenarios. Detail what could happen if no corrective action is taken.';
@@ -109,12 +126,27 @@ abstract final class AppStrings {
       'Connecting Earths / Grounds', 'Installing Isolations / Lockouts',
     ],
     'Personal Protective Equipment': [
-      'Head Protection', 'Ears / Hearing Protection',
-      'Respiratory System Protection', 'Body Area Protection',
+      'Head Protection', 'Face & Eye Protection',
+      'Ears / Hearing Protection', 'Respiratory System Protection',
+      'Body Area Protection', 'Hand & Arm Protection',
+      'Leg, Feet & Toe Protection',
     ],
     'People Positions': [
       'People Contact with Objects', 'Objects Striking People',
       'Body Part Trapped In / On / Between', 'People Falling',
+      'Contact Extreme Temperature', 'Contact Electric Current',
+      'Inhaling Hazardous Substance', 'Absorbing Hazardous Substance',
+      'Swallowing Hazardous Substance', 'Straining / Overexertion',
+      'Repetitive Similar Motion', 'Static Awkward Position / Posture',
+    ],
+    'Tools & Work Equipment': [
+      'Incorrect for the Task / Job', 'Improper Use of Tools / Equipment',
+      'Tools / Equipment Unsafe Condition',
+    ],
+    'Procedures & Orderliness': [
+      'Inadequate for Work Being Done', 'Not Known or Not Understood',
+      'Not Followed or Disregarded', 'Standard Orderliness Inadequate',
+      'Standard Orderliness Not Known', 'Standard Orderliness Not Followed',
     ],
   };
   static const safeUnsafeActions = 'Safe / Unsafe Actions';
@@ -150,6 +182,8 @@ abstract final class AppStrings {
   static const supervisorNameRequired = 'Enter supervisor name before continuing.';
   static const supervisorSignature = 'Supervisor Signature';
   static const signaturePending = 'Signature capture is being implemented.';
+  static const tapToSign = 'Tap to sign';
+  static const clear = 'Clear';
   static const supervisorNotes = 'Further Action / Notes';
   static const supervisorNotesHint = 'Enter recommended follow-up actions...';
   static const attachments = 'Attachments';
@@ -186,6 +220,8 @@ abstract final class AppStrings {
   static const duplicate = 'Duplicate';
   static const deleteReport = 'Delete Report';
   static const reportActionsPending = 'Report actions are being implemented.';
+  static const deleteConfirm = 'Delete this report from this device? This cannot be undone.';
+  static const deleteFailed = 'Unable to delete the report. Please try again.';
   static String statusLabel(ReportStatus status) => switch (status) {
     ReportStatus.draft => 'Draft',
     ReportStatus.ready => 'Ready',

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/l10n/app_strings.dart';
-import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
 import '../data/draft_autosave.dart';
 import 'observation_form_widgets.dart';
@@ -72,21 +71,8 @@ class _ObservedEventScreenState extends State<ObservedEventScreen> {
       ObservationTextArea(label: AppStrings.describeObservedEvent,
         hint: AppStrings.observedEventHint, controller: _description),
       const SizedBox(height: 20),
-      const ObservationFieldLabel(AppStrings.evidencePhotos),
-      const SizedBox(height: 8),
-      OutlinedButton.icon(
-        onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(AppStrings.photosPending))),
-        icon: const ObservationIcon(_icons, 'camera', 18),
-        label: const Text(AppStrings.addPhoto),
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.secondaryInk,
-          side: const BorderSide(color: AppColors.border, width: 1.5),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          alignment: Alignment.centerLeft,
-        ),
-      ),
+      EvidencePhotos(reportId: widget.report.id,
+        iconDirectory: _icons, initialPaths: widget.report.attachmentPaths),
     ],
   );
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/l10n/app_strings.dart';
+import '../../../app/app_services.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
 import '../data/draft_autosave.dart';
@@ -32,6 +33,19 @@ class _EmployeeInformationScreenState extends State<EmployeeInformationScreen> {
     _name.addListener(_schedule);
     _number.addListener(_schedule);
     _department.addListener(_schedule);
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final profile = await AppServices.reports.loadProfile();
+      if (!mounted) return;
+      if (_name.text.isEmpty) _name.text = profile['name'] ?? '';
+      if (_number.text.isEmpty) _number.text = profile['employeeNumber'] ?? '';
+      if (_department.text.isEmpty) _department.text = profile['department'] ?? '';
+    } catch (_) {
+      // Manual entry remains available if profile lookup fails.
+    }
   }
 
   void _schedule() {

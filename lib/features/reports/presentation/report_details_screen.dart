@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../app/app_services.dart';
 import '../../observations/domain/observation_report.dart';
 import '../../observations/presentation/observation_form_widgets.dart';
+import '../../observations/presentation/basic_information_screen.dart';
+import '../data/report_pdf.dart';
+import '../data/report_transfer.dart';
 
 const _icons = 'report_details';
 
@@ -90,18 +96,101 @@ class ReportDetailsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         color: Colors.white,
         child: Wrap(spacing: 8, runSpacing: 8, children: [
-          _ActionButton(AppStrings.edit, 'pencil', () => _pending(context)),
-          _ActionButton(AppStrings.exportPdf, 'file_text', () => _pending(context)),
-          _ActionButton(AppStrings.exportSafety, 'download', () => _pending(context)),
-          _ActionButton(AppStrings.duplicate, 'copy', () => _pending(context)),
-          _ActionButton(AppStrings.deleteReport, 'trash', () => _pending(context)),
+          _ActionButton(AppStrings.edit, 'pencil', () => _edit(context)),
+          _ActionButton(AppStrings.exportPdf, 'file_text', () => _exportPdf(context)),
+          _ActionButton(AppStrings.exportSafety, 'download', () => _exportSafety(context)),
+          _ActionButton(AppStrings.duplicate, 'copy', () => _duplicate(context)),
+          _ActionButton(AppStrings.deleteReport, 'trash', () => _delete(context)),
         ]),
       ),
     ])),
   );
 
-  void _pending(BuildContext context) => ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(content: Text(AppStrings.reportActionsPending)));
+  Future<void> _exportPdf(BuildContext context) async {
+    try {
+      final latest = await AppServices.reports.findById(report.id);
+      if (latest == null) throw StateError('Report missing');
+      final bytes = await ReportPdf.build(latest);
+      if (!context.mounted) return;
+      await Printing.sharePdf(bytes: bytes, filename: '${report.id}.pdf');
+    } catch (_) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.pdfFailed)));
+    }
+  }
+
+  Future<void> _exportSafety(BuildContext context) async {
+    try {
+      final latest = await AppServices.reports.findById(report.id);
+      if (latest == null) throw StateError('Report missing');
+      final file = await ReportTransfer.exportReport(latest);
+      if (!context.mounted) return;
+      await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
+    } catch (_) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.exportFailed)));
+    }
+  }
+
+  Future<void> _edit(BuildContext context) async {
+    try {
+      final latest = await AppServices.reports.update(report.id,
+        (value) => value.withDetails(status: ReportStatus.draft));
+      if (!context.mounted) return;
+      await Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => BasicInformationScreen(report: latest)));
+    } catch (_) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.loadFailed)));
+    }
+  }
+
+  Future<void> _duplicate(BuildContext context) async {
+    try {
+      final fresh = ObservationReport.newDraft(type: report.type,
+        stopCardCategory: report.stopCardCategory).withDetails(
+          area: report.area,
+          employeeName: report.employeeName,
+          employeeNumber: report.employeeNumber,
+          employeeDepartment: report.employeeDepartment,
+          observedEvent: report.observedEvent,
+          potentialHazard: report.potentialHazard,
+          actionTaken: report.actionTaken,
+          furtherActions: report.furtherActions,
+          safetyCategories: List.of(report.safetyCategories),
+          encouragement: report.encouragement,
+          immediateCorrectiveAction: report.immediateCorrectiveAction,
+          risk: report.risk,
+        );
+      await AppServices.reports.save(fresh);
+      if (!context.mounted) return;
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => BasicInformationScreen(report: fresh)));
+    } catch (_) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
+  }
+
+  Future<void> _delete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(context: context, builder: (dialog) => AlertDialog(
+      title: const Text(AppStrings.deleteReport),
+      content: const Text(AppStrings.deleteConfirm),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(dialog, false), child: const Text(AppStrings.cancel)),
+        FilledButton(onPressed: () => Navigator.pop(dialog, true), child: const Text(AppStrings.deleteReport)),
+      ],
+    ));
+    if (confirmed != true) return;
+    try {
+      await AppServices.reports.delete(report.id);
+      await AppServices.media.deleteMedia(report.id);
+      if (context.mounted) Navigator.of(context).pop();
+    } catch (_) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.deleteFailed)));
+    }
+  }
 }
 
 class _DetailLine extends StatelessWidget {

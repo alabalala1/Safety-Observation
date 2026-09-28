@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'dart:typed_data';
 
+import '../../../app/app_services.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../domain/observation_report.dart';
 import '../data/draft_autosave.dart';
 import 'attachments_screen.dart';
 import 'observation_form_widgets.dart';
+import 'signature_pad_dialog.dart';
 
 const _icons = 'supervisor_notification';
 
@@ -19,6 +23,7 @@ class SupervisorNotificationScreen extends StatefulWidget {
 
 class _SupervisorNotificationScreenState extends State<SupervisorNotificationScreen> {
   late bool _notified = widget.report.supervisorNotified;
+  late String? _signaturePath = widget.report.signaturePath;
   late final TextEditingController _name =
       TextEditingController(text: widget.report.supervisorName);
   late final TextEditingController _notes =
@@ -44,6 +49,19 @@ class _SupervisorNotificationScreenState extends State<SupervisorNotificationScr
       supervisorName: notified ? name : '',
       supervisorFurtherAction: notes,
     ));
+  }
+
+  Future<void> _captureSignature() async {
+    final bytes = await showDialog<Uint8List>(context: context,
+      builder: (_) => const SignaturePadDialog());
+    if (bytes == null) return;
+    try {
+      final report = await AppServices.media.saveSignature(widget.report.id, bytes);
+      if (mounted) setState(() => _signaturePath = report.signaturePath);
+    } catch (_) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(AppStrings.saveFailed)));
+    }
   }
 
   @override
@@ -105,14 +123,19 @@ class _SupervisorNotificationScreenState extends State<SupervisorNotificationScr
         const SizedBox(height: 20),
         const ObservationFieldLabel(AppStrings.supervisorSignature),
         const SizedBox(height: 6),
-        Container(
-          height: 100,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: const Color(0xFFF8FAFC),
-            border: Border.all(color: AppColors.border, width: 1.5),
-            borderRadius: BorderRadius.circular(10)),
-          child: const Text(AppStrings.signaturePending,
-            style: TextStyle(color: AppColors.mutedInk, fontSize: 13)),
+        InkWell(onTap: _captureSignature,
+          child: Container(
+            height: 100,
+            width: double.infinity,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: const Color(0xFFF8FAFC),
+              border: Border.all(color: AppColors.border, width: 1.5),
+              borderRadius: BorderRadius.circular(10)),
+            child: _signaturePath == null
+                ? const Text(AppStrings.tapToSign,
+                    style: TextStyle(color: AppColors.mutedInk, fontSize: 13))
+                : Image.file(File(_signaturePath!), fit: BoxFit.contain),
+          ),
         ),
       ],
       const SizedBox(height: 20),
