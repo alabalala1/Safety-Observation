@@ -11,14 +11,14 @@ Design file: `eNLkUWaaTxCcfWNCEK4X3P`, page `0:1`. Each frame becomes one Dart s
 | `5:5` observed-event-screen | `lib/features/observations/presentation/observed_event_screen.dart` | UI and description input implemented; photo capture and disk saving pending |
 | `5:71` potential-hazard-screen | `lib/features/observations/presentation/potential_hazard_screen.dart` | UI and description input implemented; photo capture and disk saving pending |
 | `5:143` action-taken-screen | `lib/features/observations/presentation/action_taken_screen.dart` | UI and text input implemented; next screen and disk saving pending |
-| `6:5` safety-categories-screen | `lib/features/observations/presentation/safety_categories_screen.dart` | Pending |
-| `6:120` safe-unsafe-actions | `lib/features/observations/presentation/safe_unsafe_actions_screen.dart` | Pending |
-| `6:163` risk-ranking | `lib/features/observations/presentation/risk_ranking_screen.dart` | Pending |
-| `6:215` supervisor-notification | `lib/features/observations/presentation/supervisor_notification_screen.dart` | Pending |
-| `6:268` attachments | `lib/features/observations/presentation/attachments_screen.dart` | Pending |
-| `6:318` review-and-save | `lib/features/observations/presentation/review_and_save_screen.dart` | Pending |
-| `7:5` reports-history | `lib/features/reports/presentation/reports_history_screen.dart` | Pending |
-| `7:131` report-details | `lib/features/reports/presentation/report_details_screen.dart` | Pending |
+| `6:5` safety-categories-screen | `lib/features/observations/presentation/safety_categories_screen.dart` | Checklist implemented; local saving pending |
+| `6:120` safe-unsafe-actions | `lib/features/observations/presentation/safe_unsafe_actions_screen.dart` | Conditional input UI implemented; local saving pending |
+| `6:163` risk-ranking | `lib/features/observations/presentation/risk_ranking_screen.dart` | Selection UI implemented; local saving pending |
+| `6:215` supervisor-notification | `lib/features/observations/presentation/supervisor_notification_screen.dart` | Notification and notes UI implemented; signature capture pending |
+| `6:268` attachments | `lib/features/observations/presentation/attachments_screen.dart` | Empty-state UI implemented; camera and gallery pending |
+| `6:318` review-and-save | `lib/features/observations/presentation/review_and_save_screen.dart` | Dynamic review UI implemented; save/complete pending |
+| `7:5` reports-history | `lib/features/reports/presentation/reports_history_screen.dart` | Search and filters UI implemented; device database pending |
+| `7:131` report-details | `lib/features/reports/presentation/report_details_screen.dart` | Dynamic details UI implemented; edit/export/delete pending |
 
 ## Design decisions for version one
 

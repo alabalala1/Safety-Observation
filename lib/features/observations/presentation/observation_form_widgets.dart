@@ -13,6 +13,9 @@ class ObservationStepScaffold extends StatelessWidget {
     required this.iconDirectory,
     required this.children,
     required this.onContinue,
+    this.showStepBadge = true,
+    this.progress,
+    this.buttonLabel = AppStrings.continueLabel,
   });
 
   final String title;
@@ -20,9 +23,17 @@ class ObservationStepScaffold extends StatelessWidget {
   final String iconDirectory;
   final List<Widget> children;
   final VoidCallback onContinue;
+  final bool showStepBadge;
+  final double? progress;
+  final String buttonLabel;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) {
+    final compositeBack = const {
+      'observed_event', 'action_taken', 'safe_unsafe_actions',
+      'risk_ranking', 'supervisor_notification', 'attachments', 'review_and_save',
+    }.contains(iconDirectory);
+    return Scaffold(
         body: SafeArea(
           child: Column(
             children: [
@@ -36,7 +47,12 @@ class ObservationStepScaffold extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Row(
                           children: [
-                            Material(
+                            if (compositeBack)
+                              InkWell(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: ObservationIcon(iconDirectory, 'arrow_left', 36),
+                              )
+                            else Material(
                               color: const Color(0xFFF8FAFC),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -63,7 +79,7 @@ class ObservationStepScaffold extends StatelessWidget {
                                     fontWeight: FontWeight.w800,
                                   )),
                             ),
-                            Container(
+                            if (showStepBadge) Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
                                 color: AppColors.ink,
@@ -81,7 +97,7 @@ class ObservationStepScaffold extends StatelessWidget {
                       ),
                     ),
                     LinearProgressIndicator(
-                      value: step / 10,
+                      value: progress ?? step / 10,
                       minHeight: 4,
                       backgroundColor: const Color(0xFFE2E8F0),
                       color: AppColors.orange,
@@ -117,7 +133,7 @@ class ObservationStepScaffold extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(AppStrings.continueLabel,
+                      Text(buttonLabel,
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
                       const SizedBox(width: 8),
                       ObservationIcon(iconDirectory, 'arrow_right', 20),
@@ -129,6 +145,7 @@ class ObservationStepScaffold extends StatelessWidget {
           ),
         ),
       );
+  }
 }
 
 class ObservationIcon extends StatelessWidget {

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../domain/observation_report.dart';
 import 'observation_form_widgets.dart';
+import 'safety_categories_screen.dart';
 
 const _icons = 'action_taken';
 
@@ -33,11 +34,10 @@ class _ActionTakenScreenState extends State<ActionTakenScreen> {
         const SnackBar(content: Text(AppStrings.actionRequired)));
       return;
     }
-    final report = widget.report.withDetails(
-      actionTaken: _action.text.trim(), furtherActions: _further.text.trim());
-    // Keep the draft in memory until local persistence and the next screen exist.
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('${AppStrings.nextScreenPending} ${report.id}'),
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => SafetyCategoriesScreen(report: widget.report.withDetails(
+        actionTaken: _action.text.trim(), furtherActions: _further.text.trim(),
+      )),
     ));
   }
 

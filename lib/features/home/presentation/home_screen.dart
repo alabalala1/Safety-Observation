@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../observations/presentation/observation_type_screen.dart';
+import '../../reports/presentation/reports_history_screen.dart';
 
 const _assets = 'assets/icons/home';
 
@@ -72,7 +73,11 @@ class HomeScreen extends StatelessWidget {
                       description: AppStrings.myReportsDescription,
                       icon: 'file_text',
                       chevron: 'chevron_right_reports',
-                      onTap: () => _pending(context),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const ReportsHistoryScreen(),
+                        ),
+                      ),
                     ),
                     const SizedBox(height: 16),
                     _ActionCard(

@@ -21,3 +21,11 @@ flutter:
     - assets/icons/observed_event/
     - assets/icons/potential_hazard/
     - assets/icons/action_taken/
+    - assets/icons/safety_categories/
+    - assets/icons/safe_unsafe_actions/
+    - assets/icons/risk_ranking/
+    - assets/icons/supervisor_notification/
+    - assets/icons/attachments/
+    - assets/icons/review_and_save/
+    - assets/icons/reports_history/
+    - assets/icons/report_details/

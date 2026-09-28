@@ -1,3 +1,5 @@
+import '../../features/observations/domain/observation_report.dart';
+
 /// English copy is centralized so localization can be added without editing
 /// individual widgets. This app has no server sync in version one.
 abstract final class AppStrings {
@@ -92,4 +94,100 @@ abstract final class AppStrings {
   static const furtherActionsHint = 'Describe any additional actions needed...';
   static const actionRequired = 'Describe the action taken before continuing.';
   static const nextScreenPending = 'The next step is being implemented. Draft in memory:';
+  static const safetyCategories = 'Safety Categories';
+  static const allCorrect = 'Observation All Correct';
+  static const allCorrectHint = 'Mark all items below as safe and compliant.';
+  static const safetyCategorySections = <String, List<String>>{
+    'Reactions of People': [
+      'Correcting Position of PPE', 'Moving or Changing Position',
+      'Moving / Rearranging Work', 'Stopping Work or Task',
+      'Connecting Earths / Grounds', 'Installing Isolations / Lockouts',
+    ],
+    'Personal Protective Equipment': [
+      'Head Protection', 'Ears / Hearing Protection',
+      'Respiratory System Protection', 'Body Area Protection',
+    ],
+    'People Positions': [
+      'People Contact with Objects', 'Objects Striking People',
+      'Body Part Trapped In / On / Between', 'People Falling',
+    ],
+  };
+  static const safeUnsafeActions = 'Safe / Unsafe Actions';
+  static const safeUnsafeNotice =
+      'Describe positive behaviors observed or immediate corrective actions taken.';
+  static const encouragementLabel = 'Encouragement Given / Observed Safe Action';
+  static const encouragementHint =
+      'Example: Commended operator for an excellent pre-use inspection...';
+  static const immediateCorrectionLabel =
+      'Immediate Corrective Action / Observed Unsafe';
+  static const immediateCorrectionHint =
+      'Describe the unsafe act and the immediate correction...';
+  static const safeUnsafeHint = 'Sections shown based on observation type.';
+  static const riskRanking = 'Risk Ranking';
+  static const riskNotice =
+      'Evaluate the maximum potential consequence of the observed hazard if left unaddressed.';
+  static const highRisk = 'HIGH RISK';
+  static const mediumRisk = 'MEDIUM RISK';
+  static const lowRisk = 'LOW RISK';
+  static const highRiskDescription =
+      'Imminent danger of severe injury, fatality, or major environmental incident. Requires immediate intervention.';
+  static const mediumRiskDescription =
+      'Potential for moderate injury, minor spill, or property damage. Needs correction within the shift.';
+  static const lowRiskDescription =
+      'Negligible hazard. Standard housekeeping issues or minor non-compliance items.';
+  static const riskRequired = 'Select a risk ranking before continuing.';
+  static const supervisor = 'Supervisor';
+  static const supervisorNotified = 'Supervisor Notified?';
+  static const yes = 'YES';
+  static const no = 'NO';
+  static const supervisorName = 'Supervisor Name';
+  static const enterSupervisorName = 'Enter supervisor name';
+  static const supervisorNameRequired = 'Enter supervisor name before continuing.';
+  static const supervisorSignature = 'Supervisor Signature';
+  static const signaturePending = 'Signature capture is being implemented.';
+  static const supervisorNotes = 'Further Action / Notes';
+  static const supervisorNotesHint = 'Enter recommended follow-up actions...';
+  static const attachments = 'Attachments';
+  static const uploadEvidencePhotos = 'Upload Evidence Photos';
+  static String photosAttached(int count) => '$count PHOTOS ATTACHED';
+  static const addMore = 'Add more';
+  static const takePhoto = 'Take Photo';
+  static const gallery = 'Gallery';
+  static const reviewAndSave = 'Review & Save';
+  static const completeReport = 'Complete Report';
+  static const saveDraftOnly = 'Save Draft Only';
+  static const storagePending = 'Saving on this device is being implemented.';
+  static const selectedCategories = 'Selected Categories';
+  static const type = 'Type';
+  static String typeLabel(ObservationType type) => switch (type) {
+    ObservationType.nearMiss => nearMiss,
+    ObservationType.tofs => tofs,
+    ObservationType.hazardId => hazardId,
+    ObservationType.stopCard => stopCard,
+  };
+  static String riskLabel(RiskRanking risk) => switch (risk) {
+    RiskRanking.high => highRisk,
+    RiskRanking.medium => mediumRisk,
+    RiskRanking.low => lowRisk,
+  };
+  static const searchReports = 'Search by ID, employee, area...';
+  static const all = 'All';
+  static const noReportsOnDevice =
+      'No reports saved on this device yet. Start a new observation.';
+  static const reportDetails = 'Report Details';
+  static const edit = 'Edit';
+  static const exportPdf = 'Export PDF';
+  static const exportSafety = 'Export .safety file';
+  static const duplicate = 'Duplicate';
+  static const deleteReport = 'Delete Report';
+  static const reportActionsPending = 'Report actions are being implemented.';
+  static String statusLabel(ReportStatus status) => switch (status) {
+    ReportStatus.draft => 'Draft',
+    ReportStatus.ready => 'Ready',
+    ReportStatus.sentForCompletion => 'Sent for completion',
+    ReportStatus.received => 'Received',
+    ReportStatus.inProgress => 'Pending',
+    ReportStatus.completed => 'Completed',
+    ReportStatus.exported => 'Exported',
+  };
 }
