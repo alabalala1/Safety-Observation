@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
@@ -85,11 +87,29 @@ class ReportDetailsScreen extends StatelessWidget {
             label: Text(e), backgroundColor: const Color(0xFFFFEDD5))).toList()),
           const SizedBox(height: 20),
         ],
+        if (report.attachmentPaths.isNotEmpty) ...[
+          const ObservationFieldLabel(AppStrings.evidencePhotos),
+          const SizedBox(height: 8),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final path in report.attachmentPaths)
+              ClipRRect(borderRadius: BorderRadius.circular(8),
+                child: Image.file(File(path), width: 96, height: 96, fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox(width: 96, height: 96,
+                    child: Icon(Icons.broken_image_outlined)))),
+          ]),
+          const SizedBox(height: 20),
+        ],
         if (report.supervisorNotified && report.supervisorName.isNotEmpty) ...[
           const ObservationFieldLabel(AppStrings.supervisor),
           const SizedBox(height: 8),
           Row(children: [const ObservationIcon(_icons, 'check_circle', 18),
             const SizedBox(width: 8), Text(report.supervisorName)]),
+        ],
+        if (report.signaturePath != null) ...[
+          const SizedBox(height: 16),
+          const ObservationFieldLabel(AppStrings.supervisorSignature),
+          Image.file(File(report.signaturePath!), height: 72, fit: BoxFit.contain,
+            errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined)),
         ],
       ])),
       Container(
@@ -139,6 +159,7 @@ class ReportDetailsScreen extends StatelessWidget {
       if (!context.mounted) return;
       await Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (_) => BasicInformationScreen(report: latest)));
+      if (context.mounted) Navigator.of(context).pop();
     } catch (_) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(AppStrings.loadFailed)));

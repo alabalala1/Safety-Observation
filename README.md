@@ -7,7 +7,7 @@ Offline Flutter application for Android safety observations. The 15 screens from
 - SQLite stores reports and an optional employee profile on the device. Form edits are saved after a short pause; completing or saving a draft commits its status.
 - History supports status filters, search, details, editing, duplicating, and deletion.
 - Camera/gallery photos and a drawn supervisor signature are copied into application storage and included in report exports.
-- Export a report as PDF or a `.safety` file, import a `.safety` file, and export or restore a `.sbackup` archive from Settings. Existing report IDs are retained during restore.
+- Export a report as PDF or a `.safety` file, import a `.safety` file, and export or restore a `.sbackup` archive (reports, media, and profile) from Settings. Existing report IDs are retained during restore.
 - No account, remote service, or server synchronization. Backups and exported reports contain employee information and media; store shared files securely.
 
 ## Run locally

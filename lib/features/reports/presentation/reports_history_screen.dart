@@ -73,7 +73,7 @@ class _ReportsHistoryScreenState extends State<ReportsHistoryScreen> {
             ChoiceChip(label: const Text(AppStrings.all), selected: _filter == null,
               onSelected: (_) => _changeFilter(null)),
             for (final status in [ReportStatus.draft, ReportStatus.inProgress,
-                ReportStatus.completed, ReportStatus.exported])
+                ReportStatus.completed, ReportStatus.received, ReportStatus.exported])
               ChoiceChip(label: Text(AppStrings.statusLabel(status)),
                 selected: _filter == status,
                 onSelected: (_) => _changeFilter(status)),

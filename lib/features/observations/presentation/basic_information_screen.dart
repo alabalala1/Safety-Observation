@@ -38,35 +38,10 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
   }
 
   Future<void> _chooseArea() async {
-    final controller = TextEditingController(text: _area ?? '');
     final selected = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text(AppStrings.enterArea),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
-            labelText: AppStrings.area,
-            border: OutlineInputBorder(),
-          ),
-          onSubmitted: (value) => Navigator.of(dialogContext).pop(value.trim()),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text(AppStrings.cancel),
-          ),
-          FilledButton(
-            onPressed: () =>
-                Navigator.of(dialogContext).pop(controller.text.trim()),
-            child: const Text(AppStrings.save),
-          ),
-        ],
-      ),
+      builder: (_) => _AreaEntryDialog(initialArea: _area ?? ''),
     );
-    controller.dispose();
     if (!mounted || selected == null) return;
     setState(() => _area = selected.isEmpty ? null : selected);
     final area = _area ?? '';
@@ -334,6 +309,53 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
       ),
     );
   }
+}
+
+/// Owns its text controller for the entire lifetime of the dialog route,
+/// including its closing animation.
+class _AreaEntryDialog extends StatefulWidget {
+  const _AreaEntryDialog({required this.initialArea});
+
+  final String initialArea;
+
+  @override
+  State<_AreaEntryDialog> createState() => _AreaEntryDialogState();
+}
+
+class _AreaEntryDialogState extends State<_AreaEntryDialog> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initialArea);
+
+  void _save() => Navigator.of(context).pop(_controller.text.trim());
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: const Text(AppStrings.enterArea),
+        content: TextField(
+          controller: _controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.done,
+          decoration: const InputDecoration(
+            labelText: AppStrings.area,
+            border: OutlineInputBorder(),
+          ),
+          onSubmitted: (_) => _save(),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(AppStrings.cancel),
+          ),
+          FilledButton(onPressed: _save, child: const Text(AppStrings.save)),
+        ],
+      );
 }
 
 Widget _icon(String name, double size) => SvgPicture.asset(

@@ -38,7 +38,6 @@ abstract final class AppStrings {
   static const importFailed = 'Unable to import report.';
   static const pdfFailed = 'Unable to export PDF.';
   static const exportFailed = 'Unable to export report.';
-  static const featurePending = 'This feature is being implemented.';
   static const selectObservationType = 'Select Observation Type';
   static const stepOneOfTen = 'Step 1 of 10';
   static const nearMiss = 'Near Miss';
@@ -98,7 +97,6 @@ abstract final class AppStrings {
   static const eventRequired = 'Describe the observed event before continuing.';
   static const evidencePhotos = 'Evidence Photos';
   static const addPhoto = 'Add Photo';
-  static const photosPending = 'Adding photos is being implemented.';
   static const photoFailed = 'Unable to add or remove photo. Please try again.';
   static const potentialHazard = 'Potential Hazard';
   static const potentialHazardNotice =
@@ -115,7 +113,6 @@ abstract final class AppStrings {
   static const furtherActionsLabel = 'Further Action(s) Required';
   static const furtherActionsHint = 'Describe any additional actions needed...';
   static const actionRequired = 'Describe the action taken before continuing.';
-  static const nextScreenPending = 'The next step is being implemented. Draft in memory:';
   static const safetyCategories = 'Safety Categories';
   static const allCorrect = 'Observation All Correct';
   static const allCorrectHint = 'Mark all items below as safe and compliant.';
@@ -181,7 +178,6 @@ abstract final class AppStrings {
   static const enterSupervisorName = 'Enter supervisor name';
   static const supervisorNameRequired = 'Enter supervisor name before continuing.';
   static const supervisorSignature = 'Supervisor Signature';
-  static const signaturePending = 'Signature capture is being implemented.';
   static const tapToSign = 'Tap to sign';
   static const clear = 'Clear';
   static const supervisorNotes = 'Further Action / Notes';
@@ -195,7 +191,6 @@ abstract final class AppStrings {
   static const reviewAndSave = 'Review & Save';
   static const completeReport = 'Complete Report';
   static const saveDraftOnly = 'Save Draft Only';
-  static const storagePending = 'Saving on this device is being implemented.';
   static const selectedCategories = 'Selected Categories';
   static const type = 'Type';
   static String typeLabel(ObservationType type) => switch (type) {
@@ -219,7 +214,6 @@ abstract final class AppStrings {
   static const exportSafety = 'Export .safety file';
   static const duplicate = 'Duplicate';
   static const deleteReport = 'Delete Report';
-  static const reportActionsPending = 'Report actions are being implemented.';
   static const deleteConfirm = 'Delete this report from this device? This cannot be undone.';
   static const deleteFailed = 'Unable to delete the report. Please try again.';
   static String statusLabel(ReportStatus status) => switch (status) {

@@ -116,11 +116,19 @@ class ReportTransfer {
     }
   }
 
+  static Future<List<int>> _readArchive(File file) async {
+    if (await file.length() > _maxArchiveBytes) {
+      throw const FormatException('Archive too large');
+    }
+    return file.readAsBytes();
+  }
+
   static Future<ObservationReport> importReport(File file) async =>
-      _import(await file.readAsBytes(), statusOverride: ReportStatus.received);
+      _import(await _readArchive(file), statusOverride: ReportStatus.received);
 
   static Future<File> exportBackup() async {
     final reports = await AppServices.reports.search();
+    final profile = await AppServices.reports.loadProfile();
     final archive = Archive();
     for (final report in reports) {
       archive.addFile(ArchiveFile.bytes('reports/${report.id}.safety',
@@ -130,16 +138,21 @@ class ReportTransfer {
       'schemaVersion': 1,
       'createdAt': DateTime.now().toUtc().toIso8601String(),
       'reportCount': reports.length,
+      'profile': profile,
     })));
     final directory = await getTemporaryDirectory();
     final file = File(p.join(directory.path,
       'SafetyApp_Backup_${DateTime.now().millisecondsSinceEpoch}.sbackup'));
-    await file.writeAsBytes(ZipEncoder().encode(archive), flush: true);
+    final bytes = ZipEncoder().encode(archive);
+    if (bytes.length > _maxArchiveBytes) {
+      throw const FormatException('Backup exceeds supported archive size');
+    }
+    await file.writeAsBytes(bytes, flush: true);
     return file;
   }
 
   static Future<int> importBackup(File file) async {
-    final archive = _decode(await file.readAsBytes(), maxEntries: 1001);
+    final archive = _decode(await _readArchive(file), maxEntries: 1001);
     final manifest = archive.files.where((entry) => entry.name == 'backup.json').toList();
     if (manifest.length != 1) throw const FormatException('Invalid backup');
     final metadata = jsonDecode(utf8.decode(_bytes(manifest.single))) as Map<String, dynamic>;
@@ -153,6 +166,15 @@ class ReportTransfer {
       } on ReportAlreadyExists {
         // Existing report IDs are kept; backup restore never overwrites them.
       }
+    }
+    final profile = metadata['profile'];
+    if (profile is Map<String, dynamic>) {
+      await AppServices.reports.saveProfile(
+        name: profile['name'] is String ? profile['name'] as String : '',
+        employeeNumber: profile['employeeNumber'] is String
+            ? profile['employeeNumber'] as String : '',
+        department: profile['department'] is String ? profile['department'] as String : '',
+      );
     }
     return imported;
   }
