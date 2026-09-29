@@ -11,13 +11,13 @@ import '../../observations/domain/observation_report.dart';
 /// Print layout based on the Figma report template (node 28:4). Content remains
 /// data-driven and may flow onto more A4 pages when notes or photos are long.
 class ReportPdf {
-  static final _ink = PdfColor.fromInt(0xFF0F172A);
-  static final _secondary = PdfColor.fromInt(0xFF475569);
-  static final _muted = PdfColor.fromInt(0xFF64748B);
-  static final _border = PdfColor.fromInt(0xFFCBD5E1);
-  static final _slate = PdfColor.fromInt(0xFFF1F5F9);
-  static final _orange = PdfColor.fromInt(0xFFEA580C);
-  static final _green = PdfColor.fromInt(0xFF16A34A);
+  static const _ink = PdfColor.fromInt(0xFF0F172A);
+  static const _secondary = PdfColor.fromInt(0xFF475569);
+  static const _muted = PdfColor.fromInt(0xFF64748B);
+  static const _border = PdfColor.fromInt(0xFFCBD5E1);
+  static const _slate = PdfColor.fromInt(0xFFF1F5F9);
+  static const _orange = PdfColor.fromInt(0xFFEA580C);
+  static const _green = PdfColor.fromInt(0xFF16A34A);
 
   static const _months = <String>[
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -97,12 +97,12 @@ class ReportPdf {
 
   static pw.Widget _risk(ObservationReport report) {
     final (color, tint, label) = switch (report.risk) {
-      RiskRanking.high => (PdfColor.fromInt(0xFFDC2626),
-        PdfColor.fromInt(0xFFFEF2F2), 'HIGH'),
-      RiskRanking.medium => (PdfColor.fromInt(0xFFB45309),
-        PdfColor.fromInt(0xFFFFFBEB), 'MEDIUM'),
-      RiskRanking.low => (PdfColor.fromInt(0xFF16A34A),
-        PdfColor.fromInt(0xFFF0FDF4), 'LOW'),
+      RiskRanking.high => (const PdfColor.fromInt(0xFFDC2626),
+        const PdfColor.fromInt(0xFFFEF2F2), 'HIGH'),
+      RiskRanking.medium => (const PdfColor.fromInt(0xFFB45309),
+        const PdfColor.fromInt(0xFFFFFBEB), 'MEDIUM'),
+      RiskRanking.low => (const PdfColor.fromInt(0xFF16A34A),
+        const PdfColor.fromInt(0xFFF0FDF4), 'LOW'),
       null => (_muted, _slate, 'NOT SET'),
     };
     return pw.Container(
@@ -119,7 +119,7 @@ class ReportPdf {
         pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.center, children: [
           pw.Container(width: 98, height: 28,
             alignment: pw.Alignment.center,
-            decoration: pw.BoxDecoration(color: PdfColor.fromInt(0xFFF8FAFC),
+            decoration: pw.BoxDecoration(color: const PdfColor.fromInt(0xFFF8FAFC),
               border: pw.Border.all(color: _border, width: 0.7),
               borderRadius: pw.BorderRadius.circular(4)),
             child: _text('COMPANY LOGO', size: 8, color: _muted, bold: true)),
@@ -266,7 +266,7 @@ class ReportPdf {
             pw.SizedBox(width: 16),
             pw.Container(width: 100, height: 42,
               alignment: pw.Alignment.center,
-              decoration: pw.BoxDecoration(color: PdfColor.fromInt(0xFFFAFBFD),
+              decoration: pw.BoxDecoration(color: const PdfColor.fromInt(0xFFFAFBFD),
                 border: pw.Border.all(color: _border, width: 0.7),
                 borderRadius: pw.BorderRadius.circular(4)),
               child: signature == null
