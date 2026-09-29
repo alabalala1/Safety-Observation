@@ -155,6 +155,14 @@ class ReportDetailsScreen extends StatelessWidget {
           ]),
         ]),
       ),
+      const Padding(padding: EdgeInsets.fromLTRB(20, 12, 20, 18),
+        child: Column(children: [
+          Text(AppStrings.buildInfo, style: TextStyle(fontSize: 11,
+            fontWeight: FontWeight.w700, color: AppColors.mutedInk)),
+          SizedBox(height: 4),
+          Text(AppStrings.hardwareInfo, textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 10, color: AppColors.mutedInk)),
+        ])),
     ])),
   );
 
