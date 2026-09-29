@@ -274,6 +274,7 @@ class ReportPdf {
                   : pw.Image(signature, fit: pw.BoxFit.contain)),
           ])),
         pw.SizedBox(height: 14),
+        if (photos.isNotEmpty) pw.NewPage(),
         _section('Attachments / Photographic Evidence'),
         pw.SizedBox(height: 6),
         if (photos.isEmpty)
