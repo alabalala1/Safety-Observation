@@ -30,7 +30,7 @@ void main() {
     await tester.tap(find.text('Add Photo'));
     await tester.pumpAndSettle();
     expect(find.text('Take Photo'), findsOneWidget);
-    await tester.pageBack();
+    await tester.tapAt(const Offset(4, 4));
     await tester.pumpAndSettle();
     expect(find.text('Take Photo'), findsNothing);
     expect(tester.takeException(), isNull);
