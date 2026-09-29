@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../app/app_services.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../observations/presentation/observation_form_widgets.dart';
 
 /// All screens read the same local setting; a new route refreshes it on open.
 class ActiveSiteBar extends StatelessWidget {
@@ -20,7 +21,7 @@ class ActiveSiteBar extends StatelessWidget {
         color: AppColors.ink,
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(children: [
-          const Icon(Icons.location_on_outlined, size: 14, color: Colors.white),
+          const ObservationIcon('home', 'map_pin', 14),
           const SizedBox(width: 8),
           Expanded(child: Text(
             value == null || value.isEmpty

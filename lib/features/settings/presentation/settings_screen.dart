@@ -10,6 +10,7 @@ import 'package:sqflite/sqflite.dart';
 import '../../../app/app_services.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../observations/presentation/observation_form_widgets.dart';
 import '../../reports/data/report_transfer.dart';
 import 'active_site_bar.dart';
 
@@ -294,8 +295,5 @@ class _BackButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => InkWell(onTap: onPressed,
     borderRadius: BorderRadius.circular(8),
-    child: Container(width: 36, height: 36, decoration: BoxDecoration(
-      color: const Color(0xFFF8FAFC), border: Border.all(color: AppColors.border),
-      borderRadius: BorderRadius.circular(8)),
-      child: const Icon(Icons.arrow_back, size: 18, color: AppColors.ink)));
+    child: const ObservationIcon('report_details', 'arrow_left', 36));
 }

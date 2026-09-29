@@ -73,7 +73,7 @@ class _ReportsHistoryScreenState extends State<ReportsHistoryScreen> {
               child: Container(width: 40, height: 40,
                 decoration: BoxDecoration(color: AppColors.orange,
                   borderRadius: BorderRadius.circular(10)),
-                child: const Icon(Icons.shield_outlined, color: Colors.white, size: 24))),
+                child: const Center(child: ObservationIcon('home', 'shield', 24)))),
             const SizedBox(width: 12),
             const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,
               children: [
