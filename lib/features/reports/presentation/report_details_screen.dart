@@ -197,9 +197,8 @@ class ReportDetailsScreen extends StatelessWidget {
       final latest = await AppServices.reports.update(report.id,
         (value) => value.withDetails(status: ReportStatus.draft));
       if (!context.mounted) return;
-      await Navigator.of(context).push(MaterialPageRoute<void>(
+      Navigator.of(context).push(MaterialPageRoute<void>(
         builder: (_) => BasicInformationScreen(report: latest)));
-      if (context.mounted) Navigator.of(context).pop();
     } catch (_) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text(AppStrings.loadFailed)));

@@ -37,4 +37,24 @@ void main() {
     expect(find.text('Export All Reports'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('settings editor can save and close without a disposed controller',
+      (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
+    await tester.tap(find.text('Name').first);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Updated Name');
+    await tester.tap(find.text('Save'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.text('Active Site').first);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Workshop Wing-B');
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 }

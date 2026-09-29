@@ -79,19 +79,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _edit(String label, String current, Future<void> Function(String) save) async {
-    final controller = TextEditingController(text: current);
-    final value = await showDialog<String>(context: context, builder: (dialog) => AlertDialog(
-      title: Text(label),
-      content: TextField(controller: controller, autofocus: true,
-        maxLength: 100, decoration: InputDecoration(labelText: label),
-        onSubmitted: (text) => Navigator.pop(dialog, text.trim())),
-      actions: [
-        TextButton(onPressed: () => Navigator.pop(dialog), child: const Text(AppStrings.cancel)),
-        FilledButton(onPressed: () => Navigator.pop(dialog, controller.text.trim()),
-          child: const Text(AppStrings.save)),
-      ],
-    ));
-    controller.dispose();
+    final value = await showDialog<String>(context: context,
+      builder: (_) => _EditValueDialog(label: label, initialValue: current));
     if (value == null || !mounted) return;
     try {
       await save(value);
@@ -235,6 +224,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ])),
       ])),
     ])),
+  );
+}
+
+/// Keeps the text controller alive until the dialog's reverse transition ends.
+class _EditValueDialog extends StatefulWidget {
+  const _EditValueDialog({required this.label, required this.initialValue});
+  final String label, initialValue;
+
+  @override
+  State<_EditValueDialog> createState() => _EditValueDialogState();
+}
+
+class _EditValueDialogState extends State<_EditValueDialog> {
+  late final TextEditingController _controller =
+      TextEditingController(text: widget.initialValue);
+
+  void _finish(String value) {
+    FocusScope.of(context).unfocus();
+    Navigator.of(context).pop(value.trim());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: Text(widget.label),
+    content: TextField(controller: _controller, autofocus: true,
+      maxLength: 100, decoration: InputDecoration(labelText: widget.label),
+      onSubmitted: _finish),
+    actions: [
+      TextButton(onPressed: () => Navigator.pop(context),
+        child: const Text(AppStrings.cancel)),
+      FilledButton(onPressed: () => _finish(_controller.text),
+        child: const Text(AppStrings.save)),
+    ],
   );
 }
 
