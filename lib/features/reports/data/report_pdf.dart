@@ -47,7 +47,7 @@ class ReportPdf {
   static pw.Widget _section(String title) => pw.Container(
         width: double.infinity,
         padding: const pw.EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-        decoration: pw.BoxDecoration(color: _slate,
+        decoration: const pw.BoxDecoration(color: _slate,
           border: pw.Border(bottom: pw.BorderSide(color: _border, width: 0.7))),
         child: _text(title.toUpperCase(), size: 10, bold: true),
       );
