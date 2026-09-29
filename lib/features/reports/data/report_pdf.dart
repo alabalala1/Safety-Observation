@@ -132,8 +132,8 @@ class ReportPdf {
           ])),
           pw.SizedBox(width: 115, child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.end, children: [
-              _text(report.id, size: 8.5, bold: true,
-                align: pw.TextAlign.right),
+              pw.FittedBox(fit: pw.BoxFit.scaleDown,
+                child: _text(report.id, size: 8.5, bold: true)),
               pw.SizedBox(height: 3),
               _text('Page ${context.pageNumber} of ${context.pagesCount}',
                 size: 8, color: _muted),
