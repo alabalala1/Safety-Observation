@@ -20,6 +20,10 @@ dependencies:
   printing: 5.14.3
   share_plus: 13.3.0
 
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
 flutter:
   uses-material-design: true
   assets:

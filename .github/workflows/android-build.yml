@@ -38,8 +38,18 @@ jobs:
       - name: Resolve dependencies
         run: flutter pub get
 
+      - name: Capture lockfile for dependency sync
+        run: |
+          echo LOCK_BEGIN
+          base64 -w0 pubspec.lock
+          echo
+          echo LOCK_END
+
       - name: Analyze app
         run: flutter analyze lib
+
+      - name: Test area entry
+        run: flutter test
 
       - name: Build debug APK
         run: flutter build apk --debug

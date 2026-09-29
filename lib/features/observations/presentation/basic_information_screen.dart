@@ -37,12 +37,7 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
     super.dispose();
   }
 
-  Future<void> _chooseArea() async {
-    final selected = await showDialog<String>(
-      context: context,
-      builder: (_) => _AreaEntryDialog(initialArea: _area ?? ''),
-    );
-    if (!mounted || selected == null) return;
+  void _saveArea(String selected) {
     setState(() => _area = selected.isEmpty ? null : selected);
     final area = _area ?? '';
     _autosave.schedule((report) => report.withDetails(area: area));
@@ -228,44 +223,7 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    Material(
-                      color: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: const BorderSide(
-                          color: AppColors.orange,
-                          width: 2,
-                        ),
-                      ),
-                      clipBehavior: Clip.antiAlias,
-                      child: InkWell(
-                        onTap: _chooseArea,
-                        child: SizedBox(
-                          height: 48,
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _area ?? AppStrings.selectArea,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: AppColors.secondaryInk,
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                                _icon('chevron_down', 16),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    AreaSelector(initialArea: _area ?? '', onSaved: _saveArea),
                   ],
                 ),
               ),
@@ -311,22 +269,44 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
   }
 }
 
-/// Owns its text controller for the entire lifetime of the dialog route,
-/// including its closing animation.
-class _AreaEntryDialog extends StatefulWidget {
-  const _AreaEntryDialog({required this.initialArea});
+/// Edits the area on this screen without opening a second route.
+class AreaSelector extends StatefulWidget {
+  const AreaSelector({super.key, required this.initialArea, required this.onSaved});
 
   final String initialArea;
+  final ValueChanged<String> onSaved;
 
   @override
-  State<_AreaEntryDialog> createState() => _AreaEntryDialogState();
+  State<AreaSelector> createState() => _AreaSelectorState();
 }
 
-class _AreaEntryDialogState extends State<_AreaEntryDialog> {
+class _AreaSelectorState extends State<AreaSelector> {
   late final TextEditingController _controller =
       TextEditingController(text: widget.initialArea);
+  bool _editing = false;
+  String _saved = '';
 
-  void _save() => Navigator.of(context).pop(_controller.text.trim());
+  @override
+  void initState() {
+    super.initState();
+    _saved = widget.initialArea;
+  }
+
+  void _save() {
+    final value = _controller.text.trim();
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _saved = value;
+      _editing = false;
+    });
+    widget.onSaved(value);
+  }
+
+  void _cancel() {
+    FocusScope.of(context).unfocus();
+    _controller.text = _saved;
+    setState(() => _editing = false);
+  }
 
   @override
   void dispose() {
@@ -335,25 +315,56 @@ class _AreaEntryDialogState extends State<_AreaEntryDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-        title: const Text(AppStrings.enterArea),
-        content: TextField(
-          controller: _controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          textInputAction: TextInputAction.done,
-          decoration: const InputDecoration(
-            labelText: AppStrings.area,
-            border: OutlineInputBorder(),
-          ),
-          onSubmitted: (_) => _save(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(AppStrings.cancel),
-          ),
-          FilledButton(onPressed: _save, child: const Text(AppStrings.save)),
+  Widget build(BuildContext context) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (!_editing)
+            Material(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(color: AppColors.orange, width: 2),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: InkWell(
+                onTap: () => setState(() => _editing = true),
+                child: SizedBox(
+                  height: 48,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(children: [
+                      Expanded(child: Text(
+                        _saved.isEmpty ? AppStrings.selectArea : _saved,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: AppColors.secondaryInk,
+                          fontSize: 15, fontWeight: FontWeight.w600),
+                      )),
+                      _icon('chevron_down', 16),
+                    ]),
+                  ),
+                ),
+              ),
+            )
+          else ...[
+            TextField(
+              controller: _controller,
+              autofocus: true,
+              textCapitalization: TextCapitalization.words,
+              textInputAction: TextInputAction.done,
+              decoration: const InputDecoration(
+                labelText: AppStrings.area,
+                border: OutlineInputBorder(),
+              ),
+              onSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: 8),
+            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+              TextButton(onPressed: _cancel, child: const Text(AppStrings.cancel)),
+              const SizedBox(width: 8),
+              FilledButton(onPressed: _save, child: const Text(AppStrings.save)),
+            ]),
+          ],
         ],
       );
 }
