@@ -1,33 +1,18 @@
 import 'dart:io';
-import 'dart:ui' as ui;
+import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:safety_observation/features/observations/domain/observation_report.dart';
 import 'package:safety_observation/features/reports/data/report_pdf.dart';
 
-Future<List<int>> _sampleImage() async {
-  final recorder = ui.PictureRecorder();
-  final canvas = ui.Canvas(recorder);
-  canvas.drawRect(const ui.Rect.fromLTWH(0, 0, 600, 280),
-    ui.Paint()..color = const ui.Color(0xFFDDE8EF));
-  canvas.drawRect(const ui.Rect.fromLTWH(0, 190, 600, 110),
-    ui.Paint()..color = const ui.Color(0xFF80919B));
-  canvas.drawRect(const ui.Rect.fromLTWH(80, 50, 440, 130),
-    ui.Paint()..color = const ui.Color(0xFF667783));
-  canvas.drawRect(const ui.Rect.fromLTWH(115, 78, 360, 62),
-    ui.Paint()..color = const ui.Color(0xFFB4C8D2));
-  final image = await recorder.endRecording().toImage(600, 300);
-  final data = await image.toByteData(format: ui.ImageByteFormat.png);
-  image.dispose();
-  return data!.buffer.asUint8List();
-}
+const _samplePng = 'iVBORw0KGgoAAAANSUhEUgAAAMgAAABkCAIAAABM5OhcAAABbUlEQVR4nO3bsU1DQRBAQYwoArkokPsgISEmdmIhkVGEBfUQW85ogRqQ9vkkM1PA3gVP95P9m+/zzw1Mu119Aa6TsEgIi4SwSAiLhLBICIuEsEgIi4SwSAiLhLBICIuEsEjcDc7aH94Hp7HEy/PTyBwvFglhkRAWCWGREBYJYZEQFglhkRAWCWGREBYJYZEQFglhkZhcm/mTh93jqqP/m6/j5+UP9WKREBYJYZEQFglhkRAWCWGREBYJYZEQFglhkRAWCWGREBYJYZEQFglhkRAWCWGREBaJZT9TLNnw52K8WCSERUJYJIRFQlgkhEVCWCSERUJYJIRFQlgkhEVCWCQ2r28fU7NOp/PUKFbZbu9H5kyuzUzdiSvgU0hCWCSERUJYJIRFQlgkhEVCWCSERUJYJIRFQlgkhEVCWCSERUJYJIRFQlgkhEVCWCSERUJYJIRFQlgkhEVCWCSERUJYJIRFQlgkhEVCWCSEReIXKFsQjNGDW7gAAAAASUVORK5CYII=';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Figma-styled PDF builds with real fields and media', (tester) async {
+  test('Figma-styled PDF builds with real fields and media', () async {
     final photo = File('${Directory.systemTemp.path}/report_pdf_sample.png');
-    await photo.writeAsBytes(await _sampleImage());
+    await photo.writeAsBytes(base64Decode(_samplePng));
     final report = ObservationReport.newDraft(type: ObservationType.nearMiss)
       .withDetails(
         status: ReportStatus.completed,
