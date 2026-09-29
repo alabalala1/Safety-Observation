@@ -41,8 +41,16 @@ jobs:
       - name: Analyze app
         run: flutter analyze lib
 
-      - name: Test area entry
-        run: flutter test test/area_selector_test.dart test/modal_routes_test.dart
+      - name: Test UI and report PDF
+        run: flutter test test/area_selector_test.dart test/modal_routes_test.dart test/report_pdf_test.dart
+
+      - name: Upload PDF layout preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: safety-observation-report-preview
+          path: build/report-preview.pdf
+          if-no-files-found: error
+          retention-days: 14
 
       - name: Build debug APK
         run: flutter build apk --debug
