@@ -11,61 +11,38 @@ import '../../observations/domain/observation_report.dart';
 import '../../reports/data/report_transfer.dart';
 import '../../reports/presentation/report_details_screen.dart';
 import '../../settings/presentation/settings_screen.dart';
+import '../../settings/presentation/active_site_bar.dart';
 
 const _assets = 'assets/icons/home';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.activeSite});
 
   final String? activeSite;
 
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              height: 36,
-              color: AppColors.ink,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  _icon('map_pin', 14),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      activeSite == null
-                          ? AppStrings.activeSiteNotSet
-                          : 'ACTIVE SITE: $activeSite',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: AppColors.orange,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ActiveSiteBar(site: widget.activeSite),
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(20, 24, 20, 28),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    _Header(onSettings: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(builder: (_) => const SettingsScreen()))),
+                    _Header(onSettings: () async {
+                      await Navigator.of(context).push(MaterialPageRoute<void>(
+                        builder: (_) => const SettingsScreen()));
+                      if (mounted) setState(() {});
+                    }),
                     const SizedBox(height: 16),
                     _PrimaryCard(
                       onTap: () => Navigator.of(context).push(

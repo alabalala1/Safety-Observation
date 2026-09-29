@@ -129,6 +129,11 @@ class ReportTransfer {
   static Future<File> exportBackup() async {
     final reports = await AppServices.reports.search();
     final profile = await AppServices.reports.loadProfile();
+    final settings = <String, String>{};
+    for (final key in ['activeSite', 'dateFormat', 'timeFormat', 'organization']) {
+      final value = await AppServices.reports.loadSetting(key);
+      if (value != null) settings[key] = value;
+    }
     final archive = Archive();
     for (final report in reports) {
       archive.addFile(ArchiveFile.bytes('reports/${report.id}.safety',
@@ -139,6 +144,7 @@ class ReportTransfer {
       'createdAt': DateTime.now().toUtc().toIso8601String(),
       'reportCount': reports.length,
       'profile': profile,
+      'settings': settings,
     })));
     final directory = await getTemporaryDirectory();
     final file = File(p.join(directory.path,
@@ -147,6 +153,24 @@ class ReportTransfer {
     if (bytes.length > _maxArchiveBytes) {
       throw const FormatException('Backup exceeds supported archive size');
     }
+    await file.writeAsBytes(bytes, flush: true);
+    return file;
+  }
+
+  static Future<File> exportAllReports() async {
+    final reports = await AppServices.reports.search();
+    final archive = Archive();
+    for (final report in reports) {
+      archive.addFile(ArchiveFile.bytes('reports/${report.id}.safety',
+        await _package(report)));
+    }
+    final bytes = ZipEncoder().encode(archive);
+    if (bytes.length > _maxArchiveBytes) {
+      throw const FormatException('Report export exceeds supported archive size');
+    }
+    final directory = await getTemporaryDirectory();
+    final file = File(p.join(directory.path,
+      'Safety_Reports_${DateTime.now().millisecondsSinceEpoch}.zip'));
     await file.writeAsBytes(bytes, flush: true);
     return file;
   }
@@ -175,6 +199,13 @@ class ReportTransfer {
             ? profile['employeeNumber'] as String : '',
         department: profile['department'] is String ? profile['department'] as String : '',
       );
+    }
+    final settings = metadata['settings'];
+    if (settings is Map<String, dynamic>) {
+      for (final key in ['activeSite', 'dateFormat', 'timeFormat', 'organization']) {
+        final value = settings[key];
+        if (value is String) await AppServices.reports.saveSetting(key, value);
+      }
     }
     return imported;
   }

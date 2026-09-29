@@ -117,12 +117,6 @@ class ReportPdf {
   static pw.Widget _header(pw.Context context, ObservationReport report) =>
       pw.Column(children: [
         pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.center, children: [
-          pw.Container(width: 98, height: 28,
-            alignment: pw.Alignment.center,
-            decoration: pw.BoxDecoration(color: const PdfColor.fromInt(0xFFF8FAFC),
-              border: pw.Border.all(color: _border, width: 0.7),
-              borderRadius: pw.BorderRadius.circular(4)),
-            child: _text('COMPANY LOGO', size: 8, color: _muted, bold: true)),
           pw.Expanded(child: pw.Column(children: [
             _text('SAFETY OBSERVATION REPORT', size: 15, bold: true,
               align: pw.TextAlign.center),

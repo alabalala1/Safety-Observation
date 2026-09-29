@@ -15,7 +15,7 @@ class SqliteReportRepository implements ReportRepository {
 
   Future<Database> _open() async => openDatabase(
         p.join(await getDatabasesPath(), 'safety_observation.db'),
-        version: 2,
+        version: 3,
         onConfigure: (db) async => db.execute('PRAGMA foreign_keys = ON'),
         onCreate: (db, version) async {
           await db.execute('''
@@ -43,9 +43,11 @@ class SqliteReportRepository implements ReportRepository {
             )
           ''');
           await _createProfileTable(db);
+          await _createSettingsTable(db);
         },
         onUpgrade: (db, oldVersion, newVersion) async {
           if (oldVersion < 2) await _createProfileTable(db);
+          if (oldVersion < 3) await _createSettingsTable(db);
         },
       );
 
@@ -56,6 +58,24 @@ class SqliteReportRepository implements ReportRepository {
       employee_number TEXT NOT NULL DEFAULT '',
       department TEXT NOT NULL DEFAULT ''
     )''');
+  }
+
+  Future<void> _createSettingsTable(DatabaseExecutor db) async {
+    await db.execute('''CREATE TABLE app_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    )''');
+  }
+
+  Future<String?> loadSetting(String key) async {
+    final rows = await (await _db).query('app_settings', columns: ['value'],
+      where: 'key = ?', whereArgs: [key], limit: 1);
+    return rows.isEmpty ? null : rows.first['value'] as String;
+  }
+
+  Future<void> saveSetting(String key, String value) async {
+    await (await _db).insert('app_settings', {'key': key, 'value': value},
+      conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   Future<Map<String, String>> loadProfile() async {

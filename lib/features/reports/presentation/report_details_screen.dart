@@ -12,6 +12,8 @@ import '../../observations/presentation/observation_form_widgets.dart';
 import '../../observations/presentation/basic_information_screen.dart';
 import '../data/report_pdf.dart';
 import '../data/report_transfer.dart';
+import '../../settings/presentation/active_site_bar.dart';
+import '../../settings/data/report_date_format.dart';
 
 const _icons = 'report_details';
 
@@ -20,8 +22,16 @@ class ReportDetailsScreen extends StatelessWidget {
   final ObservationReport report;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => FutureBuilder<List<String?>>(
+    future: Future.wait([AppServices.reports.loadSetting('dateFormat'),
+      AppServices.reports.loadSetting('timeFormat')]),
+    builder: (context, preferences) => _content(context,
+      preferences.data?.first ?? 'DD MMM YYYY'),
+  );
+
+  Widget _content(BuildContext context, String dateFormat) => Scaffold(
     body: SafeArea(child: Column(children: [
+      const ActiveSiteBar(),
       Container(
         color: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -57,7 +67,7 @@ class ReportDetailsScreen extends StatelessWidget {
             _DetailLine(AppStrings.type, AppStrings.typeLabel(report.type)),
             _DetailLine(AppStrings.area, report.area),
             _DetailLine(AppStrings.dateRecorded,
-              MaterialLocalizations.of(context).formatMediumDate(report.createdAt.toLocal())),
+              ReportDateFormat.date(report.createdAt.toLocal(), dateFormat)),
           ]),
         ),
         const SizedBox(height: 20),
@@ -114,13 +124,35 @@ class ReportDetailsScreen extends StatelessWidget {
       ])),
       Container(
         padding: const EdgeInsets.all(16),
-        color: Colors.white,
-        child: Wrap(spacing: 8, runSpacing: 8, children: [
-          _ActionButton(AppStrings.edit, 'pencil', () => _edit(context)),
-          _ActionButton(AppStrings.exportPdf, 'file_text', () => _exportPdf(context)),
-          _ActionButton(AppStrings.exportSafety, 'download', () => _exportSafety(context)),
-          _ActionButton(AppStrings.duplicate, 'copy', () => _duplicate(context)),
-          _ActionButton(AppStrings.deleteReport, 'trash', () => _delete(context)),
+        decoration: const BoxDecoration(color: Colors.white,
+          border: Border(top: BorderSide(color: AppColors.border))),
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          Row(children: [
+            Expanded(child: _FooterAction(AppStrings.edit, 'pencil', AppColors.orange,
+              Colors.white, () => _edit(context), primary: true)),
+            const SizedBox(width: 8),
+            Expanded(child: _FooterAction(AppStrings.exportPdf, 'file_text', AppColors.ink,
+              Colors.white, () => _exportPdf(context), primary: true)),
+            const SizedBox(width: 8),
+            SizedBox(width: 44, child: _FooterAction('', 'share',
+              const Color(0xFFF8FAFC), AppColors.ink,
+              () => _exportSafety(context))),
+          ]),
+          const Padding(padding: EdgeInsets.symmetric(vertical: 12),
+            child: Divider(height: 1, color: AppColors.border)),
+          SizedBox(width: double.infinity, child: _FooterAction(
+            AppStrings.exportSafety, 'download', const Color(0xFFF8FAFC),
+            AppColors.secondaryInk, () => _exportSafety(context), compact: true)),
+          const SizedBox(height: 8),
+          Row(children: [
+            Expanded(child: _FooterAction(AppStrings.duplicate, 'copy',
+              const Color(0xFFF8FAFC), AppColors.secondaryInk,
+              () => _duplicate(context), compact: true)),
+            const SizedBox(width: 8),
+            Expanded(child: _FooterAction(AppStrings.deleteReport, 'trash',
+              const Color(0xFFFEE2E2), const Color(0xFFEF4444),
+              () => _delete(context), compact: true, danger: true)),
+          ]),
         ]),
       ),
     ])),
@@ -248,16 +280,33 @@ class _DetailText extends StatelessWidget {
   );
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton(this.label, this.icon, this.onPressed);
-  final String label;
-  final String icon;
+class _FooterAction extends StatelessWidget {
+  const _FooterAction(this.label, this.icon, this.background, this.foreground,
+    this.onPressed, {this.primary = false, this.compact = false, this.danger = false});
+  final String label, icon;
+  final Color background, foreground;
   final VoidCallback onPressed;
+  final bool primary, compact, danger;
 
   @override
-  Widget build(BuildContext context) => OutlinedButton.icon(
-    onPressed: onPressed,
-    icon: ObservationIcon(_icons, icon, 16),
-    label: Text(label),
+  Widget build(BuildContext context) => Material(
+    color: background,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(primary ? 10 : 8),
+      side: primary ? BorderSide.none : BorderSide(
+        color: danger ? const Color(0xFFEF4444) : AppColors.border)),
+    child: InkWell(onTap: onPressed,
+      borderRadius: BorderRadius.circular(primary ? 10 : 8),
+      child: SizedBox(height: primary ? 44 : compact ? 34 : 44,
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          ObservationIcon(_icons, icon, compact ? 14 : 16),
+          if (label.isNotEmpty) ...[
+            const SizedBox(width: 7),
+            Flexible(child: Text(label, maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: compact ? 12 : 14,
+                fontWeight: FontWeight.w700, color: foreground))),
+          ],
+        ])),
+    ),
   );
 }

@@ -11,11 +11,13 @@ abstract final class AppStrings {
   static const newObservationDescription =
       'File a real-time safety report or Stop Card instantly.';
   static const myReports = 'My Reports';
+  static const localLogs = 'LOCAL LOGS';
   static const myReportsDescription = 'View reports saved on this device';
   static const importReport = 'Import Report';
   static const importReportDescription = 'Import a .safety file';
   static const reportStatus = 'Report Status';
   static const activeSiteNotSet = 'NO ACTIVE SITE';
+  static const activeSite = 'Active Site';
   static const drafts = 'Drafts';
   static const pending = 'Pending';
   static const completed = 'Completed';
@@ -23,6 +25,33 @@ abstract final class AppStrings {
   static const offlineNotice =
       'Reports are saved on this device. Export a backup regularly to protect your data.';
   static const settings = 'Settings';
+  static const userProfile = 'User Profile';
+  static const name = 'Name';
+  static const appSettings = 'App Settings';
+  static const language = 'Language';
+  static const dateFormat = 'Date Format';
+  static const timeFormat = 'Time Format';
+  static const theme = 'Theme';
+  static const security = 'Security';
+  static const pinLock = 'PIN Lock';
+  static const biometricLock = 'Biometric Lock';
+  static const data = 'Data';
+  static const backupData = 'Backup Data';
+  static const importData = 'Import Data';
+  static const exportAllReports = 'Export All Reports';
+  static const storage = 'Storage';
+  static const about = 'About';
+  static const appVersion = 'App Version';
+  static const organization = 'Organization';
+  static const supportHelp = 'Support & Help';
+  static const close = 'Close';
+  static const unavailableSetting = 'is not available in this version.';
+  static const helpText = 'Reports and settings are stored on this device. '
+      'Set the active site in App Settings. Export a backup before changing '
+      'devices; use Import Data to restore it. PDF and .safety files can be '
+      'shared from Report Details.';
+  static const buildInfo = 'V1.0.0 (OFFLINE MODE)';
+  static const hardwareInfo = 'Android mobile terminal • Offline storage';
   static const myProfile = 'My Profile';
   static const saveProfile = 'Save Profile';
   static const profileSaved = 'Profile saved on this device.';
