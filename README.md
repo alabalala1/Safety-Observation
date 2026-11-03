@@ -23,6 +23,26 @@ flutter run
 
 The standard Android platform scaffold is generated because it is not tracked here. Dependencies are pinned in `pubspec.yaml` and `pubspec.lock`.
 
-## Android build on GitHub
+## Android release builds on GitHub
 
-Every push triggers [Android debug build](.github/workflows/android-build.yml). It installs Flutter 3.47.0, generates Android platform files, resolves dependencies, analyzes `lib`, and builds a debug APK. Open a successful run in the **Actions** tab and download **safety-observation-debug-apk** under **Artifacts**. Artifacts are retained for 14 days. A signed release build and device visual check are still required before distribution.
+The [Android release workflow](.github/workflows/android-build.yml) runs on each push and can also be started manually from **Actions → Android release APKs → Run workflow**. It builds three small, signed release APKs: `arm64-v8a`, `armeabi-v7a`, and `x86_64`. Download the `safety-observation-signed-apks` artifact from a successful run. Each APK installs on devices with the matching CPU architecture.
+
+### Configure the persistent signing key once
+
+Android accepts an update only when it has the same application ID and signing certificate as the installed app. Keep the upload keystore safe and reuse it for every build. Do not commit the keystore or its passwords.
+
+Create a keystore locally (keep the alias and passwords you choose):
+
+```powershell
+keytool -genkeypair -v -keystore safety-observation-upload.jks -keyalg RSA -keysize 2048 -validity 10000 -alias safety-observation
+[Convert]::ToBase64String([IO.File]::ReadAllBytes((Resolve-Path .\safety-observation-upload.jks)))
+```
+
+In the GitHub repository, open **Settings → Secrets and variables → Actions** and add these repository secrets. Set `ANDROID_KEYSTORE_BASE64` to the full Base64 output from the second command:
+
+- `ANDROID_KEYSTORE_BASE64`
+- `ANDROID_KEY_ALIAS`
+- `ANDROID_KEYSTORE_PASSWORD`
+- `ANDROID_KEY_PASSWORD`
+
+Back up the `.jks` file securely. If it is lost, future APKs cannot update installations signed with that key. The workflow sets an increasing Android build number for each run so later APKs can be installed as updates.

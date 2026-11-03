@@ -1,4 +1,4 @@
-name: Android debug build
+name: Android release APKs
 
 on:
   push:
@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: android-debug-${{ github.ref }}
+  group: android-release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -35,6 +35,20 @@ jobs:
       - name: Generate Android platform files
         run: flutter create --platforms=android --project-name=safety_observation --no-pub .
 
+      - name: Configure release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || (echo "Missing GitHub Actions secret: ANDROID_KEYSTORE_BASE64" && exit 1)
+          test -n "$ANDROID_KEY_ALIAS" || (echo "Missing GitHub Actions secret: ANDROID_KEY_ALIAS" && exit 1)
+          test -n "$ANDROID_KEYSTORE_PASSWORD" || (echo "Missing GitHub Actions secret: ANDROID_KEYSTORE_PASSWORD" && exit 1)
+          test -n "$ANDROID_KEY_PASSWORD" || (echo "Missing GitHub Actions secret: ANDROID_KEY_PASSWORD" && exit 1)
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/safety-observation-upload.jks"
+          python .github/scripts/configure_android_signing.py android/app/build.gradle.kts
+
       - name: Resolve dependencies
         run: flutter pub get
 
@@ -44,21 +58,17 @@ jobs:
       - name: Test UI and report PDF
         run: flutter test test/area_selector_test.dart test/modal_routes_test.dart test/report_pdf_test.dart
 
-      - name: Upload PDF layout preview
+      - name: Build signed APKs for each architecture
+        env:
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: flutter build apk --release --split-per-abi --build-number="$((10000 + GITHUB_RUN_NUMBER))"
+
+      - name: Upload the three signed APKs
         uses: actions/upload-artifact@v7
         with:
-          name: safety-observation-report-preview
-          path: build/report-preview.pdf
+          name: safety-observation-signed-apks
+          path: build/app/outputs/flutter-apk/app-*-release.apk
           if-no-files-found: error
-          retention-days: 14
-
-      - name: Build debug APK
-        run: flutter build apk --debug
-
-      - name: Upload debug APK
-        uses: actions/upload-artifact@v7
-        with:
-          name: safety-observation-debug-apk
-          path: build/app/outputs/flutter-apk/app-debug.apk
-          if-no-files-found: error
-          retention-days: 14
+          retention-days: 90

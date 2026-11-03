@@ -23,3 +23,4 @@ Thumbs.db
 *.keystore
 key.properties
 android/local.properties
+/signing-backup/
