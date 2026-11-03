@@ -21,7 +21,7 @@ flutter analyze lib
 flutter run
 ```
 
-The standard Android platform scaffold is generated because it is not tracked here. Dependencies are pinned in `pubspec.yaml` and `pubspec.lock`.
+Native Android, iOS, and web scaffolds are generated during builds. Platform icons are provided in `safety-observation-icons/` and installed into each generated platform by `.github/scripts/install_platform_icons.py`; the 512 px Play Store image is also kept in `assets/app_icons/android/`. Dependencies are pinned in `pubspec.yaml` and `pubspec.lock`.
 
 ## Android release builds on GitHub
 

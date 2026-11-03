@@ -33,7 +33,10 @@ jobs:
           cache: true
 
       - name: Generate Android platform files
-        run: flutter create --platforms=android --org=com.alabalala1 --project-name=safety_observation --no-pub .
+        run: flutter create --platforms=android,ios,web --org=com.alabalala1 --project-name=safety_observation --no-pub .
+
+      - name: Install platform app icons
+        run: python .github/scripts/install_platform_icons.py
 
       - name: Configure release signing
         env:
