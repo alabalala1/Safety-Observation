@@ -33,7 +33,7 @@ jobs:
           cache: true
 
       - name: Generate Android platform files
-        run: flutter create --platforms=android --project-name=safety_observation --no-pub .
+        run: flutter create --platforms=android --org=com.alabalala1 --project-name=safety_observation --no-pub .
 
       - name: Configure release signing
         env:

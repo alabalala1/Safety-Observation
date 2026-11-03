@@ -1,11 +1,24 @@
 from pathlib import Path
+import re
 import sys
 
 
 gradle_file = Path(sys.argv[1])
+manifest_file = gradle_file.parent / "src/main/AndroidManifest.xml"
 contents = gradle_file.read_text(encoding="utf-8")
+manifest = manifest_file.read_text(encoding="utf-8")
 if "safety-observation-release-signing" in contents:
     raise SystemExit("Release signing is already configured")
+
+manifest, label_count = re.subn(
+    r'android:label="[^"]+"',
+    'android:label="Safety Observation"',
+    manifest,
+    count=1,
+)
+if label_count != 1:
+    raise SystemExit("Could not set the Android app label")
+manifest_file.write_text(manifest, encoding="utf-8")
 
 contents += """
 

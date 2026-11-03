@@ -25,7 +25,7 @@ The standard Android platform scaffold is generated because it is not tracked he
 
 ## Android release builds on GitHub
 
-The [Android release workflow](.github/workflows/android-build.yml) runs on each push and can also be started manually from **Actions → Android release APKs → Run workflow**. It builds three small, signed release APKs: `arm64-v8a`, `armeabi-v7a`, and `x86_64`. Download the `safety-observation-signed-apks` artifact from a successful run. Each APK installs on devices with the matching CPU architecture.
+The [Android release workflow](.github/workflows/android-build.yml) runs on each push and can also be started manually from **Actions → Android release APKs → Run workflow**. It builds three small, signed release APKs: `arm64-v8a`, `armeabi-v7a`, and `x86_64`. Their Android application ID is `com.alabalala1.safety_observation`, and the launcher name is **Safety Observation**. Keep the application ID and signing key unchanged for future app updates. Download the `safety-observation-signed-apks` artifact from a successful run. Each APK installs on devices with the matching CPU architecture.
 
 ### Configure the persistent signing key once
 
