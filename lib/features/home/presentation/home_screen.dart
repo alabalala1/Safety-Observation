@@ -12,12 +12,19 @@ import '../../reports/data/report_transfer.dart';
 import '../../reports/presentation/report_details_screen.dart';
 import '../../settings/presentation/settings_screen.dart';
 import '../../settings/presentation/active_site_bar.dart';
+import '../../../app/user_role.dart';
 
 const _assets = 'assets/icons/home';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key, this.activeSite});
+  const HomeScreen(
+      {super.key,
+      required this.role,
+      required this.onChangeRole,
+      this.activeSite});
 
+  final UserRole role;
+  final VoidCallback onChangeRole;
   final String? activeSite;
 
   @override
@@ -40,21 +47,35 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     _Header(onSettings: () async {
                       await Navigator.of(context).push(MaterialPageRoute<void>(
-                        builder: (_) => const SettingsScreen()));
+                          builder: (_) => const SettingsScreen()));
                       if (mounted) setState(() {});
                     }),
+                    Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: widget.onChangeRole,
+                          icon: const Icon(Icons.switch_account_outlined,
+                              size: 17),
+                          label: Text(
+                              '${AppStrings.roleMode}: ${widget.role.label}'),
+                        )),
                     const SizedBox(height: 16),
-                    _PrimaryCard(
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const ObservationTypeScreen(),
+                    if (widget.role == UserRole.employee)
+                      _PrimaryCard(
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const ObservationTypeScreen(),
+                          ),
                         ),
                       ),
-                    ),
                     const SizedBox(height: 16),
                     _ActionCard(
-                      title: AppStrings.myReports,
-                      description: AppStrings.myReportsDescription,
+                      title: widget.role == UserRole.supervisor
+                          ? AppStrings.reviewIncomingReports
+                          : AppStrings.myReports,
+                      description: widget.role == UserRole.supervisor
+                          ? AppStrings.supervisorWorkspace
+                          : AppStrings.myReportsDescription,
                       icon: 'file_text',
                       chevron: 'chevron_right_reports',
                       onTap: () => _openReports(context),
@@ -62,7 +83,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 16),
                     _ActionCard(
                       title: AppStrings.importReport,
-                      description: AppStrings.importReportDescription,
+                      description: widget.role == UserRole.supervisor
+                          ? AppStrings.awaitingReview
+                          : AppStrings.importReportDescription,
                       icon: 'download',
                       chevron: 'chevron_right_import',
                       onTap: () => _importReport(context),
@@ -77,33 +100,37 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        _StatusCard(
-                          icon: 'pencil_line',
-                          label: AppStrings.drafts,
-                          onTap: () => _openReports(context, ReportStatus.draft),
-                        ),
-                        const SizedBox(width: 8),
-                        _StatusCard(
-                          icon: 'clock',
-                          label: AppStrings.pending,
-                          onTap: () => _openReports(context, ReportStatus.inProgress),
-                        ),
-                        const SizedBox(width: 8),
-                        _StatusCard(
-                          icon: 'check_circle',
-                          label: AppStrings.completed,
-                          onTap: () => _openReports(context, ReportStatus.completed),
-                        ),
-                        const SizedBox(width: 8),
-                        _StatusCard(
-                          icon: 'history',
-                          label: AppStrings.recent,
-                          onTap: () => _openReports(context),
-                        ),
-                      ],
-                    ),
+                    if (widget.role == UserRole.employee)
+                      Row(
+                        children: [
+                          _StatusCard(
+                            icon: 'pencil_line',
+                            label: AppStrings.drafts,
+                            onTap: () =>
+                                _openReports(context, ReportStatus.draft),
+                          ),
+                          const SizedBox(width: 8),
+                          _StatusCard(
+                            icon: 'clock',
+                            label: AppStrings.pending,
+                            onTap: () =>
+                                _openReports(context, ReportStatus.inProgress),
+                          ),
+                          const SizedBox(width: 8),
+                          _StatusCard(
+                            icon: 'check_circle',
+                            label: AppStrings.completed,
+                            onTap: () =>
+                                _openReports(context, ReportStatus.completed),
+                          ),
+                          const SizedBox(width: 8),
+                          _StatusCard(
+                            icon: 'history',
+                            label: AppStrings.recent,
+                            onTap: () => _openReports(context),
+                          ),
+                        ],
+                      ),
                     const SizedBox(height: 28),
                     Container(
                       padding: const EdgeInsets.all(16),
@@ -142,31 +169,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _openReports(BuildContext context, [ReportStatus? status]) =>
       Navigator.of(context).push(MaterialPageRoute<void>(
-        builder: (_) => ReportsHistoryScreen(initialStatus: status),
+        builder: (_) =>
+            ReportsHistoryScreen(initialStatus: status, role: widget.role),
       ));
 
   Future<void> _importReport(BuildContext context) async {
     try {
-      final result = await FilePicker.pickFile(type: FileType.custom,
-        allowedExtensions: ['safety']);
+      final result = await FilePicker.pickFile(
+          type: FileType.custom, allowedExtensions: ['safety']);
       final path = result?.path;
       if (path == null) return;
-      final report = await ReportTransfer.importReport(File(path));
+      final report = await ReportTransfer.importReport(File(path),
+          statusOverride: widget.role == UserRole.supervisor
+              ? ReportStatus.awaitingSupervisorReview
+              : null);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(AppStrings.reportImported)));
+          const SnackBar(content: Text(AppStrings.reportImported)));
       Navigator.of(context).push(MaterialPageRoute<void>(
-        builder: (_) => ReportDetailsScreen(report: report)));
+          builder: (_) =>
+              ReportDetailsScreen(report: report, role: widget.role)));
     } on ReportAlreadyExists {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(AppStrings.reportAlreadyExists)));
+      if (context.mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text(AppStrings.reportAlreadyExists)));
     } catch (_) {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(AppStrings.importFailed)));
+      if (context.mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text(AppStrings.importFailed)));
     }
   }
-
-
 }
 
 Widget _icon(String name, double size) => SvgPicture.asset(
@@ -240,8 +272,10 @@ class _Header extends StatelessWidget {
             ],
           ),
         ),
-        IconButton(onPressed: onSettings, tooltip: AppStrings.settings,
-          icon: const Icon(Icons.settings_outlined, color: AppColors.ink)),
+        IconButton(
+            onPressed: onSettings,
+            tooltip: AppStrings.settings,
+            icon: const Icon(Icons.settings_outlined, color: AppColors.ink)),
       ],
     );
   }

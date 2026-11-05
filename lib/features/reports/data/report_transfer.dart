@@ -24,12 +24,14 @@ class ReportTransfer {
     for (var i = 0; i < report.attachmentPaths.length; i++) {
       final file = File(report.attachmentPaths[i]);
       if (!await file.exists()) continue;
-      final name = 'photos/$i.${p.extension(file.path).toLowerCase() == '.png' ? 'png' : 'jpg'}';
+      final name =
+          'photos/$i.${p.extension(file.path).toLowerCase() == '.png' ? 'png' : 'jpg'}';
       archive.addFile(ArchiveFile.bytes(name, await file.readAsBytes()));
       photos.add(name);
     }
     json['attachmentPaths'] = photos;
-    final signature = report.signaturePath == null ? null : File(report.signaturePath!);
+    final signature =
+        report.signaturePath == null ? null : File(report.signaturePath!);
     if (signature != null && await signature.exists()) {
       const name = 'signatures/supervisor.png';
       archive.addFile(ArchiveFile.bytes(name, await signature.readAsBytes()));
@@ -49,41 +51,63 @@ class ReportTransfer {
   }
 
   static Archive _decode(List<int> bytes, {int maxEntries = 40}) {
-    if (bytes.length > _maxArchiveBytes) throw const FormatException('Archive too large');
+    if (bytes.length > _maxArchiveBytes)
+      throw const FormatException('Archive too large');
     final archive = ZipDecoder().decodeBytes(bytes);
-    if (archive.length > maxEntries) throw const FormatException('Too many files');
+    if (archive.length > maxEntries)
+      throw const FormatException('Too many files');
     var total = 0;
     for (final entry in archive) {
-      if (!entry.isFile || entry.size > _maxEntryBytes ||
-          entry.name.contains('..') || entry.name.startsWith('/') ||
-          entry.name.contains('\\')) throw const FormatException('Invalid archive entry');
+      if (!entry.isFile ||
+          entry.size > _maxEntryBytes ||
+          entry.name.contains('..') ||
+          entry.name.startsWith('/') ||
+          entry.name.contains('\\'))
+        throw const FormatException('Invalid archive entry');
       total += entry.size;
-      if (total > _maxExpandedBytes) throw const FormatException('Archive too large');
+      if (total > _maxExpandedBytes)
+        throw const FormatException('Archive too large');
     }
     return archive;
   }
 
   static List<int> _bytes(ArchiveFile entry) =>
-      entry.readBytes() ?? (throw const FormatException('Unreadable archive entry'));
+      entry.readBytes() ??
+      (throw const FormatException('Unreadable archive entry'));
 
   static Future<ObservationReport> _import(List<int> bytes,
       {ReportStatus? statusOverride}) async {
     final archive = _decode(bytes);
-    final entry = archive.files.where((item) => item.name == 'report.json').toList();
+    final entry =
+        archive.files.where((item) => item.name == 'report.json').toList();
     if (entry.length != 1) throw const FormatException('Missing report');
-    final json = jsonDecode(utf8.decode(_bytes(entry.single))) as Map<String, dynamic>;
-    if (json['schemaVersion'] != 1) throw const FormatException('Unsupported report version');
+    final json =
+        jsonDecode(utf8.decode(_bytes(entry.single))) as Map<String, dynamic>;
+    if (json['schemaVersion'] != 1)
+      throw const FormatException('Unsupported report version');
     final id = json['id'] as String?;
     if (id == null || !RegExp(r'^OBS-[A-Za-z0-9-]{1,60}$').hasMatch(id)) {
       throw const FormatException('Invalid report ID');
     }
-    if (await AppServices.reports.findById(id) != null) {
-      throw const ReportAlreadyExists();
-    }
-    final photoNames = List<String>.from((json['attachmentPaths'] as List<dynamic>?) ?? []);
+    final existing = await AppServices.reports.findById(id);
+    final incomingStatus =
+        statusOverride ?? ReportStatus.values.byName(json['status'] as String);
+    final canReplace = existing != null &&
+        ((existing.status == ReportStatus.returnedForRevision &&
+                incomingStatus == ReportStatus.awaitingSupervisorReview) ||
+            (existing.status == ReportStatus.awaitingSupervisorReview &&
+                (incomingStatus == ReportStatus.returnedForRevision ||
+                    incomingStatus == ReportStatus.approvedBySupervisor)));
+    if (existing != null && !canReplace) throw const ReportAlreadyExists();
+    final photoNames =
+        List<String>.from((json['attachmentPaths'] as List<dynamic>?) ?? []);
     final signatureName = json['signaturePath'] as String?;
-    for (final name in [...photoNames, if (signatureName != null) signatureName]) {
-      if (!RegExp(r'^(photos/[0-9]+\.(jpg|png)|signatures/supervisor\.png)$').hasMatch(name) ||
+    for (final name in [
+      ...photoNames,
+      if (signatureName != null) signatureName
+    ]) {
+      if (!RegExp(r'^(photos/[0-9]+\.(jpg|png)|signatures/supervisor\.png)$')
+              .hasMatch(name) ||
           archive.files.where((item) => item.name == name).length != 1) {
         throw const FormatException('Missing or invalid media');
       }
@@ -92,16 +116,18 @@ class ReportTransfer {
     json['signaturePath'] = null;
     final report = ObservationReport.fromJson(json);
     final storedPhotos = <String>[];
+    String? storedSignature;
     try {
       for (final name in photoNames) {
         final media = archive.files.singleWhere((item) => item.name == name);
-        storedPhotos.add(await AppServices.media.importMedia(id,
-          name.endsWith('.png') ? 'png' : 'jpg', _bytes(media)));
+        storedPhotos.add(await AppServices.media.importMedia(
+            id, name.endsWith('.png') ? 'png' : 'jpg', _bytes(media)));
       }
-      String? storedSignature;
       if (signatureName != null) {
-        final media = archive.files.singleWhere((item) => item.name == signatureName);
-        storedSignature = await AppServices.media.importMedia(id, 'png', _bytes(media));
+        final media =
+            archive.files.singleWhere((item) => item.name == signatureName);
+        storedSignature =
+            await AppServices.media.importMedia(id, 'png', _bytes(media));
       }
       final received = report.withDetails(
         status: statusOverride ?? report.status,
@@ -109,9 +135,28 @@ class ReportTransfer {
         signaturePath: storedSignature,
       );
       await AppServices.reports.save(received);
+      if (existing != null) {
+        for (final oldPath in [
+          ...existing.attachmentPaths,
+          if (existing.signaturePath != null) existing.signaturePath!,
+        ]) {
+          try {
+            final oldFile = File(oldPath);
+            if (await oldFile.exists()) await oldFile.delete();
+          } catch (_) {
+            // Keep the successful replacement even if stale media cannot be removed.
+          }
+        }
+      }
       return received;
     } catch (_) {
-      await AppServices.media.deleteMedia(id);
+      for (final path in [
+        ...storedPhotos,
+        if (storedSignature != null) storedSignature,
+      ]) {
+        final file = File(path);
+        if (await file.exists()) await file.delete();
+      }
       rethrow;
     }
   }
@@ -123,32 +168,40 @@ class ReportTransfer {
     return file.readAsBytes();
   }
 
-  static Future<ObservationReport> importReport(File file) async =>
-      _import(await _readArchive(file), statusOverride: ReportStatus.received);
+  static Future<ObservationReport> importReport(File file,
+          {ReportStatus? statusOverride}) async =>
+      _import(await _readArchive(file), statusOverride: statusOverride);
 
   static Future<File> exportBackup() async {
     final reports = await AppServices.reports.search();
     final profile = await AppServices.reports.loadProfile();
     final settings = <String, String>{};
-    for (final key in ['activeSite', 'dateFormat', 'timeFormat', 'organization']) {
+    for (final key in [
+      'activeSite',
+      'dateFormat',
+      'timeFormat',
+      'organization'
+    ]) {
       final value = await AppServices.reports.loadSetting(key);
       if (value != null) settings[key] = value;
     }
     final archive = Archive();
     for (final report in reports) {
-      archive.addFile(ArchiveFile.bytes('reports/${report.id}.safety',
-        await _package(report)));
+      archive.addFile(ArchiveFile.bytes(
+          'reports/${report.id}.safety', await _package(report)));
     }
-    archive.addFile(ArchiveFile.string('backup.json', jsonEncode({
-      'schemaVersion': 1,
-      'createdAt': DateTime.now().toUtc().toIso8601String(),
-      'reportCount': reports.length,
-      'profile': profile,
-      'settings': settings,
-    })));
+    archive.addFile(ArchiveFile.string(
+        'backup.json',
+        jsonEncode({
+          'schemaVersion': 1,
+          'createdAt': DateTime.now().toUtc().toIso8601String(),
+          'reportCount': reports.length,
+          'profile': profile,
+          'settings': settings,
+        })));
     final directory = await getTemporaryDirectory();
     final file = File(p.join(directory.path,
-      'SafetyApp_Backup_${DateTime.now().millisecondsSinceEpoch}.sbackup'));
+        'SafetyApp_Backup_${DateTime.now().millisecondsSinceEpoch}.sbackup'));
     final bytes = ZipEncoder().encode(archive);
     if (bytes.length > _maxArchiveBytes) {
       throw const FormatException('Backup exceeds supported archive size');
@@ -161,26 +214,30 @@ class ReportTransfer {
     final reports = await AppServices.reports.search();
     final archive = Archive();
     for (final report in reports) {
-      archive.addFile(ArchiveFile.bytes('reports/${report.id}.safety',
-        await _package(report)));
+      archive.addFile(ArchiveFile.bytes(
+          'reports/${report.id}.safety', await _package(report)));
     }
     final bytes = ZipEncoder().encode(archive);
     if (bytes.length > _maxArchiveBytes) {
-      throw const FormatException('Report export exceeds supported archive size');
+      throw const FormatException(
+          'Report export exceeds supported archive size');
     }
     final directory = await getTemporaryDirectory();
     final file = File(p.join(directory.path,
-      'Safety_Reports_${DateTime.now().millisecondsSinceEpoch}.zip'));
+        'Safety_Reports_${DateTime.now().millisecondsSinceEpoch}.zip'));
     await file.writeAsBytes(bytes, flush: true);
     return file;
   }
 
   static Future<int> importBackup(File file) async {
     final archive = _decode(await _readArchive(file), maxEntries: 1001);
-    final manifest = archive.files.where((entry) => entry.name == 'backup.json').toList();
+    final manifest =
+        archive.files.where((entry) => entry.name == 'backup.json').toList();
     if (manifest.length != 1) throw const FormatException('Invalid backup');
-    final metadata = jsonDecode(utf8.decode(_bytes(manifest.single))) as Map<String, dynamic>;
-    if (metadata['schemaVersion'] != 1) throw const FormatException('Unsupported backup');
+    final metadata = jsonDecode(utf8.decode(_bytes(manifest.single)))
+        as Map<String, dynamic>;
+    if (metadata['schemaVersion'] != 1)
+      throw const FormatException('Unsupported backup');
     var imported = 0;
     for (final entry in archive.files.where((item) =>
         item.name.startsWith('reports/') && item.name.endsWith('.safety'))) {
@@ -196,13 +253,21 @@ class ReportTransfer {
       await AppServices.reports.saveProfile(
         name: profile['name'] is String ? profile['name'] as String : '',
         employeeNumber: profile['employeeNumber'] is String
-            ? profile['employeeNumber'] as String : '',
-        department: profile['department'] is String ? profile['department'] as String : '',
+            ? profile['employeeNumber'] as String
+            : '',
+        department: profile['department'] is String
+            ? profile['department'] as String
+            : '',
       );
     }
     final settings = metadata['settings'];
     if (settings is Map<String, dynamic>) {
-      for (final key in ['activeSite', 'dateFormat', 'timeFormat', 'organization']) {
+      for (final key in [
+        'activeSite',
+        'dateFormat',
+        'timeFormat',
+        'organization'
+      ]) {
         final value = settings[key];
         if (value is String) await AppServices.reports.saveSetting(key, value);
       }

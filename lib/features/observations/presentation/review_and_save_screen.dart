@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/user_role.dart';
 import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../app/app_services.dart';
+import '../../reports/presentation/report_details_screen.dart';
 import '../domain/observation_report.dart';
 import 'observation_form_widgets.dart';
 
@@ -22,25 +24,36 @@ class ReviewAndSaveScreen extends StatelessWidget {
       showStepBadge: false,
       progress: 1,
       iconDirectory: _icons,
-      buttonLabel: AppStrings.completeReport,
+      buttonLabel: AppStrings.submitForReview,
       onContinue: () => _save(context, complete: true),
       children: [
         Container(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(color: Colors.white,
-            border: Border.all(color: AppColors.border, width: 1.5),
-            borderRadius: BorderRadius.circular(16)),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(color: AppColors.border, width: 1.5),
+              borderRadius: BorderRadius.circular(16)),
           child: Column(children: [
             Row(children: [
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(report.id, style: const TextStyle(color: AppColors.ink,
-                  fontSize: 16, fontWeight: FontWeight.w800)),
-                const Text(AppStrings.reportId, style: TextStyle(
-                  color: AppColors.mutedInk, fontSize: 11)),
-              ])),
-              if (report.risk != null) Text(AppStrings.riskLabel(report.risk!),
-                style: const TextStyle(color: Color(0xFFEF4444),
-                  fontWeight: FontWeight.w800, fontSize: 12)),
+              Expanded(
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                    Text(report.id,
+                        style: const TextStyle(
+                            color: AppColors.ink,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800)),
+                    const Text(AppStrings.reportId,
+                        style:
+                            TextStyle(color: AppColors.mutedInk, fontSize: 11)),
+                  ])),
+              if (report.risk != null)
+                Text(AppStrings.riskLabel(report.risk!),
+                    style: const TextStyle(
+                        color: Color(0xFFEF4444),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 12)),
             ]),
             const Divider(height: 28),
             _SummaryRow(AppStrings.type, AppStrings.typeLabel(report.type)),
@@ -54,9 +67,14 @@ class ReviewAndSaveScreen extends StatelessWidget {
         if (report.safetyCategories.isNotEmpty) ...[
           const ObservationFieldLabel(AppStrings.selectedCategories),
           const SizedBox(height: 8),
-          Wrap(spacing: 6, runSpacing: 6,
-            children: report.safetyCategories.map((category) => Chip(label: Text(category),
-              backgroundColor: const Color(0xFFFFEDD5))).toList()),
+          Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: report.safetyCategories
+                  .map((category) => Chip(
+                      label: Text(category),
+                      backgroundColor: const Color(0xFFFFEDD5)))
+                  .toList()),
           const SizedBox(height: 20),
         ],
         _SummaryText(AppStrings.observedEvent, report.observedEvent),
@@ -67,7 +85,8 @@ class ReviewAndSaveScreen extends StatelessWidget {
         const SizedBox(height: 20),
         OutlinedButton(
           onPressed: () => _save(context, complete: false),
-          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+          style:
+              OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(48)),
           child: const Text(AppStrings.saveDraftOnly),
         ),
       ],
@@ -78,22 +97,43 @@ class ReviewAndSaveScreen extends StatelessWidget {
     try {
       final current = await AppServices.reports.findById(report.id);
       if (current == null) throw StateError('Report not found');
-      if (complete && (current.area.isEmpty || current.employeeName.isEmpty ||
-          current.observedEvent.isEmpty || current.potentialHazard.isEmpty ||
-          current.actionTaken.isEmpty || current.risk == null)) {
-        if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(AppStrings.completeRequired)));
+      if (complete &&
+          (current.area.isEmpty ||
+              current.employeeName.isEmpty ||
+              current.observedEvent.isEmpty ||
+              current.potentialHazard.isEmpty ||
+              current.actionTaken.isEmpty ||
+              current.risk == null)) {
+        if (context.mounted)
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text(AppStrings.completeRequired)));
         return;
       }
-      await AppServices.reports.update(report.id, (value) => value.withDetails(
-        status: complete ? ReportStatus.completed : ReportStatus.draft));
+      final saved = await AppServices.reports.update(
+          report.id,
+          (value) => value.withDetails(
+              status: complete
+                  ? ReportStatus.awaitingSupervisorReview
+                  : ReportStatus.draft));
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(
-        complete ? AppStrings.reportCompleted : AppStrings.draftSaved)));
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(complete
+              ? AppStrings.reportSubmittedForReview
+              : AppStrings.draftSaved)));
+      if (complete) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute<void>(
+              builder: (_) =>
+                  ReportDetailsScreen(report: saved, role: UserRole.employee)),
+          (route) => route.isFirst,
+        );
+      } else {
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
     } catch (_) {
-      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(AppStrings.saveFailed)));
+      if (context.mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text(AppStrings.saveFailed)));
     }
   }
 }
@@ -105,11 +145,17 @@ class _SummaryRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(children: [
-    Text(label, style: const TextStyle(color: AppColors.mutedInk, fontSize: 13)),
-    const Spacer(),
-    Flexible(child: Text(value, textAlign: TextAlign.right,
-      style: const TextStyle(color: AppColors.ink, fontSize: 13, fontWeight: FontWeight.w700))),
-  ]);
+        Text(label,
+            style: const TextStyle(color: AppColors.mutedInk, fontSize: 13)),
+        const Spacer(),
+        Flexible(
+            child: Text(value,
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                    color: AppColors.ink,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700))),
+      ]);
 }
 
 class _SummaryText extends StatelessWidget {
@@ -119,11 +165,13 @@ class _SummaryText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      ObservationFieldLabel(label),
-      const SizedBox(height: 6),
-      Text(value, style: const TextStyle(color: AppColors.ink, fontSize: 13, height: 1.4)),
-    ],
-  );
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ObservationFieldLabel(label),
+          const SizedBox(height: 6),
+          Text(value,
+              style: const TextStyle(
+                  color: AppColors.ink, fontSize: 13, height: 1.4)),
+        ],
+      );
 }

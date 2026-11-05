@@ -16,6 +16,9 @@ enum ReportStatus {
   inProgress,
   completed,
   exported,
+  awaitingSupervisorReview,
+  returnedForRevision,
+  approvedBySupervisor,
 }
 
 class ObservationReport {
@@ -89,14 +92,17 @@ class ObservationReport {
   final String? signaturePath;
   final List<String> attachmentPaths;
 
-  factory ObservationReport.fromJson(Map<String, dynamic> json) => ObservationReport(
+  factory ObservationReport.fromJson(Map<String, dynamic> json) =>
+      ObservationReport(
         id: json['id'] as String,
         type: ObservationType.values.byName(json['type'] as String),
         status: ReportStatus.values.byName(json['status'] as String),
         createdAt: DateTime.parse(json['createdAt'] as String),
         updatedAt: DateTime.parse(json['updatedAt'] as String),
-        stopCardCategory: json['stopCardCategory'] == null ? null :
-            StopCardCategory.values.byName(json['stopCardCategory'] as String),
+        stopCardCategory: json['stopCardCategory'] == null
+            ? null
+            : StopCardCategory.values
+                .byName(json['stopCardCategory'] as String),
         area: (json['area'] as String?) ?? '',
         employeeName: (json['employeeName'] as String?) ?? '',
         employeeDepartment: (json['employeeDepartment'] as String?) ?? '',
@@ -105,15 +111,21 @@ class ObservationReport {
         potentialHazard: (json['potentialHazard'] as String?) ?? '',
         actionTaken: (json['actionTaken'] as String?) ?? '',
         furtherActions: (json['furtherActions'] as String?) ?? '',
-        safetyCategories: List<String>.from((json['safetyCategories'] as List<dynamic>?) ?? []),
+        safetyCategories: List<String>.from(
+            (json['safetyCategories'] as List<dynamic>?) ?? []),
         encouragement: (json['encouragement'] as String?) ?? '',
-        immediateCorrectiveAction: (json['immediateCorrectiveAction'] as String?) ?? '',
-        risk: json['risk'] == null ? null : RiskRanking.values.byName(json['risk'] as String),
+        immediateCorrectiveAction:
+            (json['immediateCorrectiveAction'] as String?) ?? '',
+        risk: json['risk'] == null
+            ? null
+            : RiskRanking.values.byName(json['risk'] as String),
         supervisorNotified: (json['supervisorNotified'] as bool?) ?? false,
         supervisorName: (json['supervisorName'] as String?) ?? '',
-        supervisorFurtherAction: (json['supervisorFurtherAction'] as String?) ?? '',
+        supervisorFurtherAction:
+            (json['supervisorFurtherAction'] as String?) ?? '',
         signaturePath: json['signaturePath'] as String?,
-        attachmentPaths: List<String>.from((json['attachmentPaths'] as List<dynamic>?) ?? []),
+        attachmentPaths: List<String>.from(
+            (json['attachmentPaths'] as List<dynamic>?) ?? []),
       );
 
   ObservationReport withDetails({
@@ -153,11 +165,13 @@ class ObservationReport {
         furtherActions: furtherActions ?? this.furtherActions,
         safetyCategories: safetyCategories ?? this.safetyCategories,
         encouragement: encouragement ?? this.encouragement,
-        immediateCorrectiveAction: immediateCorrectiveAction ?? this.immediateCorrectiveAction,
+        immediateCorrectiveAction:
+            immediateCorrectiveAction ?? this.immediateCorrectiveAction,
         risk: risk ?? this.risk,
         supervisorNotified: supervisorNotified ?? this.supervisorNotified,
         supervisorName: supervisorName ?? this.supervisorName,
-        supervisorFurtherAction: supervisorFurtherAction ?? this.supervisorFurtherAction,
+        supervisorFurtherAction:
+            supervisorFurtherAction ?? this.supervisorFurtherAction,
         signaturePath: signaturePath ?? this.signaturePath,
         attachmentPaths: attachmentPaths ?? this.attachmentPaths,
       );

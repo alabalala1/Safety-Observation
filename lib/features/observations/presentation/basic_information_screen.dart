@@ -21,8 +21,9 @@ class BasicInformationScreen extends StatefulWidget {
 class _BasicInformationScreenState extends State<BasicInformationScreen> {
   String? _area;
   late final DraftAutosave _autosave = DraftAutosave(widget.report.id, (_) {
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(AppStrings.saveFailed)));
+    if (mounted)
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text(AppStrings.saveFailed)));
   });
 
   @override
@@ -57,8 +58,9 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
         builder: (_) => EmployeeInformationScreen(report: report),
       ));
     } catch (_) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(AppStrings.saveFailed)));
+      if (mounted)
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text(AppStrings.saveFailed)));
     }
   }
 
@@ -269,9 +271,10 @@ class _BasicInformationScreenState extends State<BasicInformationScreen> {
   }
 }
 
-/// Edits the area on this screen without opening a second route.
+/// Selects one of the configured work areas.
 class AreaSelector extends StatefulWidget {
-  const AreaSelector({super.key, required this.initialArea, required this.onSaved});
+  const AreaSelector(
+      {super.key, required this.initialArea, required this.onSaved});
 
   final String initialArea;
   final ValueChanged<String> onSaved;
@@ -281,92 +284,40 @@ class AreaSelector extends StatefulWidget {
 }
 
 class _AreaSelectorState extends State<AreaSelector> {
-  late final TextEditingController _controller =
-      TextEditingController(text: widget.initialArea);
-  bool _editing = false;
-  String _saved = '';
-
   @override
-  void initState() {
-    super.initState();
-    _saved = widget.initialArea;
-  }
+  Widget build(BuildContext context) {
+    final selectedArea = AppStrings.areaOptions.contains(widget.initialArea)
+        ? widget.initialArea
+        : null;
 
-  void _save() {
-    final value = _controller.text.trim();
-    FocusScope.of(context).unfocus();
-    setState(() {
-      _saved = value;
-      _editing = false;
-    });
-    widget.onSaved(value);
+    return DropdownButtonFormField<String>(
+      initialValue: selectedArea,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
+        hintText: AppStrings.selectArea,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.orange, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: AppColors.orange, width: 2),
+        ),
+      ),
+      items: AppStrings.areaOptions
+          .map((area) => DropdownMenuItem<String>(
+                value: area,
+                child: Text(area),
+              ))
+          .toList(),
+      onChanged: (area) {
+        if (area != null) widget.onSaved(area);
+      },
+    );
   }
-
-  void _cancel() {
-    FocusScope.of(context).unfocus();
-    _controller.text = _saved;
-    setState(() => _editing = false);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (!_editing)
-            Material(
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: const BorderSide(color: AppColors.orange, width: 2),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: InkWell(
-                onTap: () => setState(() => _editing = true),
-                child: SizedBox(
-                  height: 48,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(children: [
-                      Expanded(child: Text(
-                        _saved.isEmpty ? AppStrings.selectArea : _saved,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(color: AppColors.secondaryInk,
-                          fontSize: 15, fontWeight: FontWeight.w600),
-                      )),
-                      _icon('chevron_down', 16),
-                    ]),
-                  ),
-                ),
-              ),
-            )
-          else ...[
-            TextField(
-              controller: _controller,
-              autofocus: true,
-              textCapitalization: TextCapitalization.words,
-              textInputAction: TextInputAction.done,
-              decoration: const InputDecoration(
-                labelText: AppStrings.area,
-                border: OutlineInputBorder(),
-              ),
-              onSubmitted: (_) => _save(),
-            ),
-            const SizedBox(height: 8),
-            Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-              TextButton(onPressed: _cancel, child: const Text(AppStrings.cancel)),
-              const SizedBox(width: 8),
-              FilledButton(onPressed: _save, child: const Text(AppStrings.save)),
-            ]),
-          ],
-        ],
-      );
 }
 
 Widget _icon(String name, double size) => SvgPicture.asset(

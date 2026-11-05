@@ -4,6 +4,29 @@ import '../../features/observations/domain/observation_report.dart';
 /// individual widgets. This app has no server sync in version one.
 abstract final class AppStrings {
   static const appName = 'Safety Observation';
+  static const roleActivationTitle = 'Set up this device';
+  static const employeeRole = 'Employee';
+  static const supervisorRole = 'Supervisor';
+  static const activationCode = 'Activation code';
+  static const activateRole = 'Activate';
+  static const pleaseWait = 'Please wait...';
+  static const invalidRoleCode =
+      'The code is invalid or does not match the selected role.';
+  static const employeeWorkspace = 'Employee Workspace';
+  static const supervisorWorkspace = 'Supervisor Workspace';
+  static const submitForReview = 'Send for Supervisor Review';
+  static const awaitingReview = 'Awaiting Supervisor Review';
+  static const returnedForRevision = 'Returned for Revision';
+  static const approvedBySupervisor = 'Approved by Supervisor';
+  static const reviewIncomingReports = 'Review Incoming Reports';
+  static const approveReport = 'Approve Report';
+  static const returnReport = 'Return for Revision';
+  static const returnReason = 'Explain what needs to be revised';
+  static const returnNoteRequired =
+      'Add a note explaining the requested changes.';
+  static const reviewDecisionSaved = 'Review decision saved to this device.';
+  static const roleMode = 'Device role';
+  static const changeRole = 'Change role';
   static const shortAppName = 'Safety Obs';
   static const subtitle = 'STOP CARD SYSTEM';
   static const offline = 'Offline';
@@ -56,7 +79,8 @@ abstract final class AppStrings {
   static const saveProfile = 'Save Profile';
   static const profileSaved = 'Profile saved on this device.';
   static const backupTitle = 'Backup & Restore';
-  static const backupExplanation = 'A backup includes all reports, photos, and signatures. Store the exported file in a secure location.';
+  static const backupExplanation =
+      'A backup includes all reports, photos, and signatures. Store the exported file in a secure location.';
   static const exportBackup = 'Export Backup';
   static const restoreBackup = 'Restore Backup';
   static const backupFailed = 'Unable to export backup.';
@@ -97,26 +121,36 @@ abstract final class AppStrings {
   static const area = 'Area';
   static const requiredAreaLabel = 'AREA *';
   static const selectArea = 'Select Area';
-  static const enterArea = 'Enter work area';
+  // Temporary sample areas. Replace with the site's approved area list.
+  static const areaOptions = <String>[
+    'Workshop',
+    'Warehouse',
+    'Office',
+  ];
   static const areaRequired = 'Select an area before continuing.';
   static const continueLabel = 'Continue';
   static const cancel = 'Cancel';
   static const save = 'Save';
   static const saveFailed = 'Unable to save the report. Please try again.';
   static const loadFailed = 'Unable to load reports. Please try again.';
-  static const completeRequired = 'Complete the required report fields before finishing.';
+  static const completeRequired =
+      'Complete the required report fields before finishing.';
   static const reportCompleted = 'Report completed and saved on this device.';
+  static const reportSubmittedForReview =
+      'Report is ready to send to the supervisor.';
   static const draftSaved = 'Draft saved on this device.';
   static String stepOfTen(int step) => 'Step $step of 10';
   static const employeeInfo = 'Employee Info';
-  static const employeeInfoNotice = 'Enter the employee details for this report.';
+  static const employeeInfoNotice =
+      'Enter the employee details for this report.';
   static const employeeName = 'Employee Name';
   static const employeeNumber = 'Employee Number';
   static const department = 'Department';
   static const enterEmployeeName = 'Enter employee name';
   static const enterEmployeeNumber = 'Enter employee number';
   static const enterDepartment = 'Enter department';
-  static const employeeNameRequired = 'Enter the employee name before continuing.';
+  static const employeeNameRequired =
+      'Enter the employee name before continuing.';
   static const auto = 'Auto';
   static const observedEvent = 'Observed Event';
   static const observedEventNotice =
@@ -133,7 +167,8 @@ abstract final class AppStrings {
   static const describePotentialHazard = 'Describe Potential Hazard / Outcome';
   static const potentialHazardHint =
       'Describe the potential hazard, expected outcome, and possible impact...';
-  static const hazardRequired = 'Describe the potential hazard before continuing.';
+  static const hazardRequired =
+      'Describe the potential hazard before continuing.';
   static const actionTaken = 'Action Taken';
   static const actionTakenNotice =
       'Document immediate corrections & ongoing risk mitigations.';
@@ -147,38 +182,55 @@ abstract final class AppStrings {
   static const allCorrectHint = 'Mark all items below as safe and compliant.';
   static const safetyCategorySections = <String, List<String>>{
     'Reactions of People': [
-      'Correcting Position of PPE', 'Moving or Changing Position',
-      'Moving / Rearranging Work', 'Stopping Work or Task',
-      'Connecting Earths / Grounds', 'Installing Isolations / Lockouts',
+      'Correcting Position of PPE',
+      'Moving or Changing Position',
+      'Moving / Rearranging Work',
+      'Stopping Work or Task',
+      'Connecting Earths / Grounds',
+      'Installing Isolations / Lockouts',
     ],
     'Personal Protective Equipment': [
-      'Head Protection', 'Face & Eye Protection',
-      'Ears / Hearing Protection', 'Respiratory System Protection',
-      'Body Area Protection', 'Hand & Arm Protection',
+      'Head Protection',
+      'Face & Eye Protection',
+      'Ears / Hearing Protection',
+      'Respiratory System Protection',
+      'Body Area Protection',
+      'Hand & Arm Protection',
       'Leg, Feet & Toe Protection',
     ],
     'People Positions': [
-      'People Contact with Objects', 'Objects Striking People',
-      'Body Part Trapped In / On / Between', 'People Falling',
-      'Contact Extreme Temperature', 'Contact Electric Current',
-      'Inhaling Hazardous Substance', 'Absorbing Hazardous Substance',
-      'Swallowing Hazardous Substance', 'Straining / Overexertion',
-      'Repetitive Similar Motion', 'Static Awkward Position / Posture',
+      'People Contact with Objects',
+      'Objects Striking People',
+      'Body Part Trapped In / On / Between',
+      'People Falling',
+      'Contact Extreme Temperature',
+      'Contact Electric Current',
+      'Inhaling Hazardous Substance',
+      'Absorbing Hazardous Substance',
+      'Swallowing Hazardous Substance',
+      'Straining / Overexertion',
+      'Repetitive Similar Motion',
+      'Static Awkward Position / Posture',
     ],
     'Tools & Work Equipment': [
-      'Incorrect for the Task / Job', 'Improper Use of Tools / Equipment',
+      'Incorrect for the Task / Job',
+      'Improper Use of Tools / Equipment',
       'Tools / Equipment Unsafe Condition',
     ],
     'Procedures & Orderliness': [
-      'Inadequate for Work Being Done', 'Not Known or Not Understood',
-      'Not Followed or Disregarded', 'Standard Orderliness Inadequate',
-      'Standard Orderliness Not Known', 'Standard Orderliness Not Followed',
+      'Inadequate for Work Being Done',
+      'Not Known or Not Understood',
+      'Not Followed or Disregarded',
+      'Standard Orderliness Inadequate',
+      'Standard Orderliness Not Known',
+      'Standard Orderliness Not Followed',
     ],
   };
   static const safeUnsafeActions = 'Safe / Unsafe Actions';
   static const safeUnsafeNotice =
       'Describe positive behaviors observed or immediate corrective actions taken.';
-  static const encouragementLabel = 'Encouragement Given / Observed Safe Action';
+  static const encouragementLabel =
+      'Encouragement Given / Observed Safe Action';
   static const encouragementHint =
       'Example: Commended operator for an excellent pre-use inspection...';
   static const immediateCorrectionLabel =
@@ -205,7 +257,8 @@ abstract final class AppStrings {
   static const no = 'NO';
   static const supervisorName = 'Supervisor Name';
   static const enterSupervisorName = 'Enter supervisor name';
-  static const supervisorNameRequired = 'Enter supervisor name before continuing.';
+  static const supervisorNameRequired =
+      'Enter supervisor name before continuing.';
   static const supervisorSignature = 'Supervisor Signature';
   static const tapToSign = 'Tap to sign';
   static const clear = 'Clear';
@@ -223,35 +276,41 @@ abstract final class AppStrings {
   static const selectedCategories = 'Selected Categories';
   static const type = 'Type';
   static String typeLabel(ObservationType type) => switch (type) {
-    ObservationType.nearMiss => nearMiss,
-    ObservationType.tofs => tofs,
-    ObservationType.hazardId => hazardId,
-    ObservationType.stopCard => stopCard,
-  };
+        ObservationType.nearMiss => nearMiss,
+        ObservationType.tofs => tofs,
+        ObservationType.hazardId => hazardId,
+        ObservationType.stopCard => stopCard,
+      };
   static String riskLabel(RiskRanking risk) => switch (risk) {
-    RiskRanking.high => highRisk,
-    RiskRanking.medium => mediumRisk,
-    RiskRanking.low => lowRisk,
-  };
+        RiskRanking.high => highRisk,
+        RiskRanking.medium => mediumRisk,
+        RiskRanking.low => lowRisk,
+      };
   static const searchReports = 'Search by ID, employee, area...';
   static const all = 'All';
   static const noReportsOnDevice =
       'No reports saved on this device yet. Start a new observation.';
+  static const noReportsForReview =
+      'No reports are stored on this device. Import a report sent by an employee.';
   static const reportDetails = 'Report Details';
   static const edit = 'Edit';
   static const exportPdf = 'Export PDF';
   static const exportSafety = 'Export .safety file';
   static const duplicate = 'Duplicate';
   static const deleteReport = 'Delete Report';
-  static const deleteConfirm = 'Delete this report from this device? This cannot be undone.';
+  static const deleteConfirm =
+      'Delete this report from this device? This cannot be undone.';
   static const deleteFailed = 'Unable to delete the report. Please try again.';
   static String statusLabel(ReportStatus status) => switch (status) {
-    ReportStatus.draft => 'Draft',
-    ReportStatus.ready => 'Ready',
-    ReportStatus.sentForCompletion => 'Sent for completion',
-    ReportStatus.received => 'Received',
-    ReportStatus.inProgress => 'Pending',
-    ReportStatus.completed => 'Completed',
-    ReportStatus.exported => 'Exported',
-  };
+        ReportStatus.draft => 'Draft',
+        ReportStatus.ready => 'Ready',
+        ReportStatus.sentForCompletion => 'Sent for completion',
+        ReportStatus.received => 'Received',
+        ReportStatus.inProgress => 'Pending',
+        ReportStatus.completed => 'Completed',
+        ReportStatus.exported => 'Exported',
+        ReportStatus.awaitingSupervisorReview => awaitingReview,
+        ReportStatus.returnedForRevision => returnedForRevision,
+        ReportStatus.approvedBySupervisor => approvedBySupervisor,
+      };
 }

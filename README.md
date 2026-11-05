@@ -9,6 +9,16 @@ Offline Flutter application for Android safety observations. The 15 screens from
 - Camera/gallery photos and a drawn supervisor signature are copied into application storage and included in report exports.
 - Export a report as PDF or a `.safety` file, import a `.safety` file, and export or restore a `.sbackup` archive (reports, media, and profile) from Settings. Existing report IDs are retained during restore.
 - No account, remote service, or server synchronization. Backups and exported reports contain employee information and media; store shared files securely.
+- Device role is activated offline with a generated employee or supervisor code. Employees submit report files for review; supervisors approve with a drawn signature or return them with notes. See `tools/generate_role_codes.py` to issue pilot codes.
+
+Generate role activation codes from the repository root with Python 3:
+
+```powershell
+python tools/generate_role_codes.py EMP --count 10
+python tools/generate_role_codes.py SUP --count 3
+```
+
+Pilot activation codes only separate app workflows. The shared verification key is bundled in the app and generator; this is not a secure identity credential. Replace it with a signed-code design before relying on roles for authorization.
 
 ## Run locally
 
